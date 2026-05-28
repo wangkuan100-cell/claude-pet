@@ -1431,7 +1431,7 @@ function main() {
   saveSession(hook.session_id, session);
   const activeMins = session.startedAt ? (now - new Date(session.startedAt)) / 60000 : 0;
   saveStatus(buildStatus({
-    cwd: hook.cwd, repo: snapshot.isRepo ? snapshot.branch && hook.cwd : null,
+    cwd: hook.cwd, repo: snapshot.isRepo ? hook.cwd : null,
     snapshot, usage, costUsd: 0, activeMins,
   }, now));
 }
