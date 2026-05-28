@@ -30,6 +30,24 @@ test('PostToolUse Write event adds line XP to pet.json and exits 0', () => {
   assert.equal(pet.lifetime.linesAdded, 3);
 });
 
+test('PostToolUse MultiEdit counts lines across all edits', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
+  const r = runHook(home, {
+    hook_event_name: 'PostToolUse',
+    session_id: 's1',
+    cwd: home,
+    tool_name: 'MultiEdit',
+    tool_input: {
+      file_path: path.join(home, 'x.js'),
+      edits: [{ old_string: 'a', new_string: 'a\nb' }, { old_string: 'c', new_string: 'c\nd\ne' }],
+    },
+    tool_response: {},
+  });
+  assert.equal(r.status, 0);
+  const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(pet.lifetime.linesAdded, 5); // 2 + 3 lines across the two edits
+});
+
 test('SessionStart bumps session count and exits 0', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
   const r = runHook(home, { hook_event_name: 'SessionStart', session_id: 's1', cwd: home, source: 'startup' });

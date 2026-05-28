@@ -13,10 +13,16 @@ function readStdin() {
   try { return fs.readFileSync(0, 'utf8'); } catch { return ''; }
 }
 
+function countText(s) {
+  return s ? s.split('\n').filter((l) => l.length > 0).length : 0;
+}
+
 function countLines(toolInput) {
-  const content = toolInput?.content ?? toolInput?.new_string ?? '';
-  if (!content) return 0;
-  return content.split('\n').filter((l) => l.length > 0).length;
+  // MultiEdit carries an `edits` array; Write has `content`; Edit has `new_string`.
+  if (Array.isArray(toolInput?.edits)) {
+    return toolInput.edits.reduce((n, e) => n + countText(e.new_string), 0);
+  }
+  return countText(toolInput?.content ?? toolInput?.new_string);
 }
 
 function main() {
@@ -33,9 +39,6 @@ function main() {
     pet.lifetime.sessions += 1;
     session.startedAt = now.toISOString();
   } else if (event === 'PostToolUse') {
-    if (hook.tool_name === 'Write' && hook.tool_input?.file_path && !fs.existsSync(hook.tool_input.file_path)) {
-      events.push({ type: 'newFile' });
-    }
     if (['Write', 'Edit', 'MultiEdit'].includes(hook.tool_name)) {
       events.push({ type: 'lines', count: countLines(hook.tool_input) });
     }
@@ -46,7 +49,7 @@ function main() {
     }
   }
 
-  // Read-only git: detect new commits + tags since last seen, per repo.
+  // Read-only git: detect new commits since last seen, per repo.
   let snapshot = { isRepo: false };
   if (hook.cwd) {
     const runGit = makeGitRunner(hook.cwd);
@@ -54,7 +57,7 @@ function main() {
       snapshot = gitSnapshot(runGit, now);
       if (snapshot.isRepo) {
         const repoKey = hook.cwd;
-        pet.repos[repoKey] = pet.repos[repoKey] || { lastSeenCommit: null, lastSeenTag: null };
+        pet.repos[repoKey] = pet.repos[repoKey] || { lastSeenCommit: null };
         const seen = pet.repos[repoKey].lastSeenCommit;
         const fresh = newCommitsSince(runGit, seen);
         if (seen) {

@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 
-const ALLOWED = new Set(['status', 'log', 'tag', 'rev-parse', 'config', 'describe']);
+const ALLOWED = new Set(['rev-parse', 'status', 'log']);
 
 export function makeGitRunner(cwd) {
   return function runGit(args) {
