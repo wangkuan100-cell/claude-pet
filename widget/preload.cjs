@@ -7,4 +7,6 @@ contextBridge.exposeInMainWorld('api', {
   requestPaint: () => ipcRenderer.send('request-paint'),
   // user picked a species on the adoption screen.
   adopt: (species) => ipcRenderer.send('adopt', species),
+  // tell main whether the pointer is over an interactive region (else clicks pass through)
+  setInteractive: (on) => ipcRenderer.send('set-interactive', !!on),
 });
