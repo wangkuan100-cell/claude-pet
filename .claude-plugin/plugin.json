@@ -1,0 +1,5 @@
+{
+  "name": "claude-pet",
+  "description": "A desktop pet that grows as you code with Claude Code.",
+  "version": "0.1.0"
+}
