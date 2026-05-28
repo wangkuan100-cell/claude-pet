@@ -42,6 +42,11 @@ function main() {
     if (['Write', 'Edit', 'MultiEdit'].includes(hook.tool_name)) {
       events.push({ type: 'lines', count: countLines(hook.tool_input) });
     }
+    // Write reports type 'create' for a new file vs 'update' for an overwrite;
+    // only a real new file earns the bonus (PostToolUse can't use fs.existsSync — the file already exists).
+    if (hook.tool_name === 'Write' && hook.tool_response?.type === 'create') {
+      events.push({ type: 'newFile' });
+    }
     if (hook.tool_name === 'Bash' && isTestCommand(hook.tool_input?.command)) {
       const out = `${hook.tool_response?.stdout || ''}${hook.tool_response?.stderr || ''}`;
       const code = hook.tool_response?.exit_code ?? hook.tool_response?.exitCode ?? null;

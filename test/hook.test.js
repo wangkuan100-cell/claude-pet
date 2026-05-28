@@ -30,6 +30,38 @@ test('PostToolUse Write event adds line XP to pet.json and exits 0', () => {
   assert.equal(pet.lifetime.linesAdded, 3);
 });
 
+test('PostToolUse Write that creates a new file earns the +15 newFile bonus on top of line XP', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
+  const r = runHook(home, {
+    hook_event_name: 'PostToolUse',
+    session_id: 's1',
+    cwd: home,
+    tool_name: 'Write',
+    tool_input: { file_path: path.join(home, 'new.js'), content: 'a\nb\nc\n' },
+    tool_response: { type: 'create', filePath: path.join(home, 'new.js'), structuredPatch: [], originalFile: null },
+  });
+  assert.equal(r.status, 0);
+  const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(pet.lifetime.linesAdded, 3);
+  assert.equal(pet.xp, 18); // 3 line XP + 15 newFile bonus (day-1 streak multiplier = 1.0)
+});
+
+test('PostToolUse Write that overwrites an existing file earns no newFile bonus', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
+  const r = runHook(home, {
+    hook_event_name: 'PostToolUse',
+    session_id: 's1',
+    cwd: home,
+    tool_name: 'Write',
+    tool_input: { file_path: path.join(home, 'x.js'), content: 'a\nb\nc\n' },
+    tool_response: { type: 'update', filePath: path.join(home, 'x.js'), structuredPatch: [{}], originalFile: 'old' },
+  });
+  assert.equal(r.status, 0);
+  const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(pet.lifetime.linesAdded, 3);
+  assert.equal(pet.xp, 3); // line XP only, no +15 newFile bonus
+});
+
 test('PostToolUse MultiEdit counts lines across all edits', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
   const r = runHook(home, {
