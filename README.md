@@ -22,6 +22,7 @@ A floating Electron window shows your pet and reacts to coding activity.
   and a click opens a stats panel (level, XP, mood, project, achievements).
 - Art is emoji placeholder for now; real generated art arrives in M4.
 - `CLAUDE_PET_HOME` overrides the state dir (useful for a fixture/demo).
+- M3 polish: level-up celebration + achievement toasts, an empathy bubble when tests keep failing, and click-through so the window never blocks what's behind it.
 
 ## Env
 - `CLAUDE_PET_HOME` — state dir (default `~/.claude-pet`).
