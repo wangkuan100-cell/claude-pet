@@ -1,6 +1,6 @@
 import { LEVEL_THRESHOLDS } from './constants.js';
 
-function thresholdForLevel(level) {
+export function thresholdForLevel(level) {
   // level is 1-based. Use table where available, else double the last entry.
   if (level <= LEVEL_THRESHOLDS.length) return LEVEL_THRESHOLDS[level - 1];
   const last = LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1];

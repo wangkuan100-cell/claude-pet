@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { levelForXp, stageForLevel } from '../src/levels.js';
+import { thresholdForLevel } from '../src/levels.js';
 
 test('levelForXp maps cumulative xp to level', () => {
   assert.equal(levelForXp(0), 1);
@@ -26,4 +27,13 @@ test('stageForLevel names life stages', () => {
   assert.equal(stageForLevel(5), 'adult');
   assert.equal(stageForLevel(6), 'evolved1');
   assert.equal(stageForLevel(8), 'evolved3');
+});
+
+test('thresholdForLevel returns cumulative-XP thresholds, doubling past the table', () => {
+  assert.equal(thresholdForLevel(1), 0);
+  assert.equal(thresholdForLevel(2), 150);
+  assert.equal(thresholdForLevel(3), 450);
+  assert.equal(thresholdForLevel(7), 9000);
+  assert.equal(thresholdForLevel(8), 18000);
+  assert.equal(thresholdForLevel(9), 36000);
 });
