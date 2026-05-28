@@ -1268,7 +1268,7 @@ git commit -m "feat: persist per-session XP accumulator"
 ```js
 import { spawnSync } from 'node:child_process';
 
-const ALLOWED = new Set(['status', 'log', 'tag', 'rev-parse', 'config', 'describe']);
+const ALLOWED = new Set(['rev-parse', 'status', 'log']);
 
 export function makeGitRunner(cwd) {
   return function runGit(args) {
@@ -1316,6 +1316,24 @@ test('PostToolUse Write event adds line XP to pet.json and exits 0', () => {
   assert.equal(pet.lifetime.linesAdded, 3);
 });
 
+test('PostToolUse MultiEdit counts lines across all edits', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
+  const r = runHook(home, {
+    hook_event_name: 'PostToolUse',
+    session_id: 's1',
+    cwd: home,
+    tool_name: 'MultiEdit',
+    tool_input: {
+      file_path: path.join(home, 'x.js'),
+      edits: [{ old_string: 'a', new_string: 'a\nb' }, { old_string: 'c', new_string: 'c\nd\ne' }],
+    },
+    tool_response: {},
+  });
+  assert.equal(r.status, 0);
+  const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(pet.lifetime.linesAdded, 5); // 2 + 3 lines across the two edits
+});
+
 test('SessionStart bumps session count and exits 0', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
   const r = runHook(home, { hook_event_name: 'SessionStart', session_id: 's1', cwd: home, source: 'startup' });
@@ -1358,10 +1376,16 @@ function readStdin() {
   try { return fs.readFileSync(0, 'utf8'); } catch { return ''; }
 }
 
+function countText(s) {
+  return s ? s.split('\n').filter((l) => l.length > 0).length : 0;
+}
+
 function countLines(toolInput) {
-  const content = toolInput?.content ?? toolInput?.new_string ?? '';
-  if (!content) return 0;
-  return content.split('\n').filter((l) => l.length > 0).length;
+  // MultiEdit carries an `edits` array; Write has `content`; Edit has `new_string`.
+  if (Array.isArray(toolInput?.edits)) {
+    return toolInput.edits.reduce((n, e) => n + countText(e.new_string), 0);
+  }
+  return countText(toolInput?.content ?? toolInput?.new_string);
 }
 
 function main() {
@@ -1378,9 +1402,6 @@ function main() {
     pet.lifetime.sessions += 1;
     session.startedAt = now.toISOString();
   } else if (event === 'PostToolUse') {
-    if (hook.tool_name === 'Write' && hook.tool_input?.file_path && !fs.existsSync(hook.tool_input.file_path)) {
-      events.push({ type: 'newFile' });
-    }
     if (['Write', 'Edit', 'MultiEdit'].includes(hook.tool_name)) {
       events.push({ type: 'lines', count: countLines(hook.tool_input) });
     }
@@ -1391,7 +1412,7 @@ function main() {
     }
   }
 
-  // Read-only git: detect new commits + tags since last seen, per repo.
+  // Read-only git: detect new commits since last seen, per repo.
   let snapshot = { isRepo: false };
   if (hook.cwd) {
     const runGit = makeGitRunner(hook.cwd);
@@ -1399,7 +1420,7 @@ function main() {
       snapshot = gitSnapshot(runGit, now);
       if (snapshot.isRepo) {
         const repoKey = hook.cwd;
-        pet.repos[repoKey] = pet.repos[repoKey] || { lastSeenCommit: null, lastSeenTag: null };
+        pet.repos[repoKey] = pet.repos[repoKey] || { lastSeenCommit: null };
         const seen = pet.repos[repoKey].lastSeenCommit;
         const fresh = newCommitsSince(runGit, seen);
         if (seen) {
@@ -1442,7 +1463,7 @@ try { main(); } catch { /* never block Claude */ } finally { process.exit(0); }
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `node --test test/hook.test.js`
-Expected: PASS (3 tests).
+Expected: PASS (4 tests).
 
 - [ ] **Step 6: Commit**
 
