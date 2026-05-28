@@ -1,7 +1,7 @@
 {
   "hooks": {
     "SessionStart": [
-      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/hook.js\"" } ] }
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/hook.js\"" }, { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/pet-autolaunch.js\"" } ] }
     ],
     "PostToolUse": [
       { "matcher": "Edit|Write|MultiEdit|Bash",

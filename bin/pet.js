@@ -42,6 +42,15 @@ if (cmd === 'status') {
   const { pet: updated } = applyEvent(pet, { linesXp: 0, testXp: 0 }, { type: 'milestone' }, new Date());
   savePet(updated);
   console.log(`Milestone logged: "${rest.join(' ')}" (+300 xp). Now Lv ${updated.level}.`);
+} else if (cmd === 'start') {
+  const { start } = await import('../widget/launcher.js');
+  const electronPath = process.env.CLAUDE_PET_FAKE_ELECTRON || undefined;
+  const r = start(electronPath ? { electronPath } : {});
+  console.log(r.started ? `Widget started (pid ${r.pid}).` : `Widget ${r.reason}.`);
+} else if (cmd === 'stop') {
+  const { stop } = await import('../widget/launcher.js');
+  const r = stop();
+  console.log(r.stopped ? 'Widget stopped.' : 'Widget was not running.');
 } else {
   console.error(`unknown command: ${cmd}`);
   process.exit(1);
