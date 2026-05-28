@@ -69,10 +69,26 @@ export function panelData(pet, status, now) {
 
 export function buildPaintData(pet, status, now = new Date()) {
   if (!pet.species) return { mode: 'adopt', species: SPECIES };
+  const expr = currentExpression(pet, now);
+  let bubble = bubbleFor(status);
+  if (!bubble && expr === 'worried') bubble = { kind: 'empathy', emoji: '🫂', text: '别灰心,我陪着你' };
   return {
     mode: 'pet',
-    sprite: spritePlaceholder(spriteKey(pet, now)),
-    bubble: bubbleFor(status),
+    sprite: spritePlaceholder(`${pet.species}/${pet.stage}/${expr}`),
+    expression: expr,
+    bubble,
     panel: panelData(pet, status, now),
+  };
+}
+
+export function paintEvents(prevPanel, nextPanel) {
+  if (!prevPanel || !nextPanel) {
+    return { leveledUp: false, newLevel: nextPanel ? nextPanel.level : null, newAchievements: [] };
+  }
+  const prev = new Set(prevPanel.achievements || []);
+  return {
+    leveledUp: nextPanel.level > prevPanel.level,
+    newLevel: nextPanel.level,
+    newAchievements: (nextPanel.achievements || []).filter((a) => !prev.has(a)),
   };
 }

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  currentMood, currentExpression, spriteKey, xpProgress, bubbleFor, buildPaintData,
+  currentMood, currentExpression, spriteKey, xpProgress, bubbleFor, buildPaintData, paintEvents,
 } from '../widget/render-logic.js';
 
 const NOW = new Date('2026-05-28T12:00:00Z');
@@ -58,4 +58,24 @@ test('buildPaintData returns pet mode with sprite, bubble, and panel', () => {
   assert.equal(data.panel.xpPct, 50);
   assert.equal(data.panel.project.repo, 'a/b');
   assert.deepEqual(data.panel.achievements, ['first-hatch']);
+});
+
+test('buildPaintData shows an empathy bubble when worried and no alert outranks it', () => {
+  const failing = pet({ mood: 90, recentFailureUntil: '2026-05-28T12:10:00Z' });
+  const data = buildPaintData(failing, { alerts: [] }, NOW);
+  assert.equal(data.expression, 'worried');
+  assert.equal(data.bubble.kind, 'empathy');
+  assert.match(data.bubble.text, /别灰心/);
+});
+
+test('an alert bubble outranks the empathy bubble', () => {
+  const failing = pet({ mood: 90, recentFailureUntil: '2026-05-28T12:10:00Z' });
+  const data = buildPaintData(failing, { alerts: ['context'] }, NOW);
+  assert.equal(data.bubble.kind, 'context');
+});
+
+test('paintEvents reports level-ups and newly unlocked achievements', () => {
+  assert.deepEqual(paintEvents(null, { level: 2, achievements: ['a'] }), { leveledUp: false, newLevel: 2, newAchievements: [] });
+  assert.deepEqual(paintEvents({ level: 1, achievements: [] }, { level: 2, achievements: ['first-hatch'] }), { leveledUp: true, newLevel: 2, newAchievements: ['first-hatch'] });
+  assert.deepEqual(paintEvents({ level: 2, achievements: ['a'] }, { level: 2, achievements: ['a', 'b'] }), { leveledUp: false, newLevel: 2, newAchievements: ['b'] });
 });
