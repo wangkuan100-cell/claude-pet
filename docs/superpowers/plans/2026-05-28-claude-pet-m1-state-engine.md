@@ -721,7 +721,7 @@ git commit -m "feat: parse token usage from session transcript"
 - Create: `src/git.js`
 - Test: `test/git.test.js`
 
-`gitSnapshot` and `newCommitsSince` take an injected `runGit(args) => { code, stdout }` so tests never touch a real repo and the read-only invariant is provable. `runGit` only ever receives read-only subcommands.
+`gitSnapshot` and `newCommitsSince` take an injected `runGit(args) => { code, stdout }` so tests never touch a real repo and the read-only invariant is provable. `runGit` only ever receives read-only subcommands. Fields are space-separated; since a git hash never contains a space, we split on the FIRST space only, so commit subjects that contain spaces stay intact.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -743,11 +743,12 @@ function fakeGit(map) {
 
 test('gitSnapshot reads branch, dirty count, and last commit', () => {
   const now = new Date('2026-05-28T12:00:00Z');
+  const ct = Math.floor(now.getTime() / 1000) - 3600; // committed 60 min ago
   const run = fakeGit({
     'rev-parse --is-inside-work-tree': { code: 0, stdout: 'true\n' },
     'rev-parse --abbrev-ref HEAD': { code: 0, stdout: 'main\n' },
     'status --porcelain': { code: 0, stdout: ' M a.js\n?? b.js\n' },
-    'log -1 --format=%H%x00%ct': { code: 0, stdout: 'abc123 1748430000\n' }, // 2026-05-28T11:00:00Z
+    'log -1 --format=%H %ct': { code: 0, stdout: `abc123 ${ct}\n` },
   });
   const snap = gitSnapshot(run, now);
   assert.equal(snap.isRepo, true);
@@ -763,9 +764,9 @@ test('gitSnapshot reports non-repo cleanly', () => {
   assert.equal(snap.isRepo, false);
 });
 
-test('newCommitsSince parses hash+subject pairs', () => {
+test('newCommitsSince parses hash and subject, keeping spaces in the subject', () => {
   const run = fakeGit({
-    'log abc..HEAD --format=%H%x00%s': { code: 0, stdout: 'h2 feat: x\nh1 fix: y\n' },
+    'log abc..HEAD --format=%H %s': { code: 0, stdout: 'h2 feat: x\nh1 fix: y\n' },
   });
   const commits = newCommitsSince(run, 'abc');
   assert.deepEqual(commits, [
@@ -776,7 +777,7 @@ test('newCommitsSince parses hash+subject pairs', () => {
 
 test('newCommitsSince with no baseline returns only HEAD (no backfill)', () => {
   const run = fakeGit({
-    'log -1 --format=%H%x00%s': { code: 0, stdout: 'head1 initial\n' },
+    'log -1 --format=%H %s': { code: 0, stdout: 'head1 initial\n' },
   });
   const commits = newCommitsSince(run, null);
   assert.deepEqual(commits, [{ hash: 'head1', message: 'initial' }]);
@@ -791,7 +792,12 @@ Expected: FAIL — cannot find module `../src/git.js`.
 - [ ] **Step 3: Write minimal implementation**
 
 ```js
-const NUL = ' ';
+// git --format outputs "<hash> <field>"; a hash never contains a space, so we
+// split on the FIRST space only and keep the rest (the commit subject) intact.
+function splitFirst(line) {
+  const i = line.indexOf(' ');
+  return i === -1 ? [line, ''] : [line.slice(0, i), line.slice(i + 1)];
+}
 
 export function gitSnapshot(runGit, now = new Date()) {
   const inside = runGit(['rev-parse', '--is-inside-work-tree']);
@@ -801,10 +807,10 @@ export function gitSnapshot(runGit, now = new Date()) {
   const status = runGit(['status', '--porcelain']).stdout;
   const dirtyCount = status.split('\n').filter((l) => l.trim().length > 0).length;
 
-  const log = runGit(['log', '-1', '--format=%H' + NUL + '%ct']);
+  const log = runGit(['log', '-1', '--format=%H %ct']);
   let lastCommitHash = null, minsSinceLastCommit = null;
   if (log.code === 0 && log.stdout.trim()) {
-    const [hash, ct] = log.stdout.trim().split(NUL);
+    const [hash, ct] = splitFirst(log.stdout.trim());
     lastCommitHash = hash;
     minsSinceLastCommit = Math.round((now.getTime() / 1000 - Number(ct)) / 60);
   }
@@ -812,18 +818,22 @@ export function gitSnapshot(runGit, now = new Date()) {
 }
 
 export function newCommitsSince(runGit, lastSeenHash) {
+  const fmt = '--format=%H %s';
   if (!lastSeenHash) {
-    const head = runGit(['log', '-1', '--format=%H' + NUL + '%s']);
+    const head = runGit(['log', '-1', fmt]);
     if (head.code !== 0 || !head.stdout.trim()) return [];
-    const [hash, message] = head.stdout.trim().split(NUL);
+    const [hash, message] = splitFirst(head.stdout.trim());
     return [{ hash, message }];
   }
-  const out = runGit(['log', `${lastSeenHash}..HEAD`, '--format=%H' + NUL + '%s']);
+  const out = runGit(['log', `${lastSeenHash}..HEAD`, fmt]);
   if (out.code !== 0) return [];
-  return out.stdout.split('\n').filter((l) => l.trim()).map((l) => {
-    const [hash, message] = l.split(NUL);
-    return { hash, message };
-  });
+  return out.stdout
+    .split('\n')
+    .filter((l) => l.trim())
+    .map((l) => {
+      const [hash, message] = splitFirst(l);
+      return { hash, message };
+    });
 }
 ```
 
