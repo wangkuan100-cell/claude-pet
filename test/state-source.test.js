@@ -25,8 +25,13 @@ test('watch invokes the callback after a file changes, and stop() cleans up', as
   process.env.CLAUDE_PET_HOME = home;
   fs.writeFileSync(path.join(home, 'pet.json'), JSON.stringify({ xp: 1 }));
   const { watch } = await import('../widget/state-source.js?2');
-  const seen = await new Promise((resolve) => {
-    const stop = watch((state) => { stop(); resolve(state); });
+  // fs.watch can emit spurious/early events (or fire mid-write); only settle once we
+  // actually observe the new value, and fail cleanly if it never arrives.
+  const seen = await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => { stop(); reject(new Error('watch did not fire within 3s')); }, 3000);
+    const stop = watch((state) => {
+      if (state.pet.xp === 2) { clearTimeout(timer); stop(); resolve(state); }
+    });
     setTimeout(() => fs.writeFileSync(path.join(home, 'pet.json'), JSON.stringify({ xp: 2 })), 50);
   });
   assert.equal(seen.pet.xp, 2);
