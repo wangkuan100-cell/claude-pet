@@ -1020,7 +1020,7 @@ test('feat commit awards big xp, bumps features, raises mood, can level up', () 
 test('milestone awards 300 and unlocks first-release', () => {
   const { pet, unlocked } = applyEvent(defaultPet(T0.toISOString()), acc(), { type: 'milestone' }, T0);
   assert.equal(pet.xp, 300);
-  assert.equal(pet.level, 3); // 300 -> Lv3
+  assert.equal(pet.level, 2); // 300 xp -> Lv2 (>=150, <450)
   assert.ok(unlocked.includes('first-release'));
 });
 
