@@ -3,7 +3,7 @@ import { levelForXp, stageForLevel } from './levels.js';
 import { moodAfterEvent, moodAfterFailure, moodAfterDecay } from './mood.js';
 import { unlockAchievements } from './achievements.js';
 import {
-  LINE_XP_CAP_PER_SESSION, TEST_XP_CAP_PER_SESSION, FAILURE_WINDOW_MIN,
+  LINE_XP_CAP_PER_SESSION, TEST_XP_CAP_PER_SESSION, FAILURE_WINDOW_MIN, FAILURE_STREAK_THRESHOLD,
   CONTEXT_WINDOW_TOKENS, CONTEXT_ALERT_PCT, GIT_DIRTY_ALERT, COMMIT_AGE_ALERT_MIN, REST_ALERT_MIN,
 } from './constants.js';
 
@@ -60,11 +60,16 @@ export function applyEvent(pet, sessionAcc, event, now = new Date()) {
     if (event.kind === 'feat') next.lifetime.features += 1;
   }
 
-  // Mood.
+  // Mood. Per spec §8, drop mood (and show worried) only after >=3 consecutive
+  // test failures in a session — a lone failure is the normal TDD red phase.
   if (event.type === 'failure') {
-    next.mood = moodAfterFailure(next.mood);
-    next.recentFailureUntil = new Date(now.getTime() + FAILURE_WINDOW_MIN * 60000).toISOString();
+    acc.failures = (acc.failures || 0) + 1;
+    if (acc.failures >= FAILURE_STREAK_THRESHOLD) {
+      next.mood = moodAfterFailure(next.mood);
+      next.recentFailureUntil = new Date(now.getTime() + FAILURE_WINDOW_MIN * 60000).toISOString();
+    }
   } else {
+    if (event.type === 'testPass') acc.failures = 0;
     const moodKey = event.type === 'commit' && event.kind === 'feat' ? 'feat' : MOOD_EVENT[event.type];
     if (moodKey) next.mood = moodAfterEvent(next.mood, moodKey);
   }

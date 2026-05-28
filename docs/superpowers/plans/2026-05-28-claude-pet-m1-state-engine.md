@@ -1776,8 +1776,7 @@ git commit -m "docs: add M1 README"
 - M3: reminder bubbles from `status.alerts`, level-up + achievement animations, worried/empathy expression, live idle decay between events.
 - M4: GPT Image 2.0 build-time asset pipeline; `plugin.json` finalize + `marketplace.json`; `monitors` auto-launch (verify capability) with SessionStart pidfile fallback; optional statusline integration for exact cost/context.
 
-## Known M1 simplifications (revisit later)
-These are intentional gaps left after M1's final review — the engine is correct and the invariant holds, but a few spec behaviors are simplified:
-- **Strict "≥3 consecutive failures":** the hook currently emits a `failure` event (mood −8, `worried` expression) on *every* failed test run, not only after 3 consecutive. The `FAILURE_STREAK_THRESHOLD` constant and `session.failures` field exist but aren't wired up yet.
-- **`newFile` +15 bonus:** `xp.js`/`engine.js` support a `newFile` event, but `hook.js` no longer emits it (the old `!existsSync` check was always false in PostToolUse). Needs a reliable signal (PreToolUse or `tool_response`) before re-enabling.
-- **Git-tag auto-detection of releases:** spec §8 lists a new `git tag` as a +300 milestone trigger; M1 only supports the manual `/pet milestone` path (`lastSeenTag` plumbing was removed). Re-add a read-only `git tag` listing when wiring this up.
+## Known M1 simplifications
+- **Strict "≥3 consecutive failures":** DONE — `engine.applyEvent` now counts `sessionAcc.failures`, only drops mood / sets `recentFailureUntil` once it reaches `FAILURE_STREAK_THRESHOLD` (3), and resets the counter on a test pass. A lone failed test (normal TDD red) no longer saddens the pet.
+- **`newFile` +15 bonus:** DONE — `hook.js` emits a `newFile` event when the Write `tool_response.type === 'create'`. (Heuristic: depends on Claude Code reporting `type:'create'` for new files; if the real field differs the bonus simply doesn't fire — no harm. Verify the actual `tool_response` shape against live runs.)
+- **Git-tag auto-detection of releases (still deferred):** spec §8 lists a new `git tag` as a +300 milestone trigger; M1 only supports the manual `/pet milestone` path. Re-add a read-only `git tag` listing when wiring this up (revisit in a later milestone).

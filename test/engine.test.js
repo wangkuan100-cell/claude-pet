@@ -41,10 +41,31 @@ test('milestone awards 300 and unlocks first-release', () => {
   assert.ok(unlocked.includes('first-release'));
 });
 
-test('failure lowers mood and sets recentFailureUntil', () => {
-  const { pet } = applyEvent(defaultPet(T0.toISOString()), acc(), { type: 'failure' }, T0);
+test('mood only drops after 3 consecutive failures (encourage, not anger)', () => {
+  let pet = defaultPet(T0.toISOString());
+  let sessionAcc = acc();
+  // First two failures are the normal TDD red phase: no mood drop, no worried flag.
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'failure' }, T0));
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'failure' }, T0));
+  assert.equal(pet.mood, 80);
+  assert.equal(pet.recentFailureUntil, null);
+  // Third consecutive failure crosses the threshold.
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'failure' }, T0));
   assert.equal(pet.mood, 72);
   assert.ok(new Date(pet.recentFailureUntil) > T0);
+});
+
+test('a passing test resets the consecutive-failure streak', () => {
+  let pet = defaultPet(T0.toISOString());
+  let sessionAcc = acc();
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'failure' }, T0));
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'failure' }, T0));
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'testPass' }, T0));
+  assert.equal(sessionAcc.failures, 0);
+  // Two more failures after the reset is only 2 consecutive → still no worried flag.
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'failure' }, T0));
+  ({ pet, sessionAcc } = applyEvent(pet, sessionAcc, { type: 'failure' }, T0));
+  assert.equal(pet.recentFailureUntil, null);
 });
 
 test('idle event applies decay based on lastActivityAt', () => {
