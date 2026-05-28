@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "node --test",
-    "widget": "electron ."
+    "widget": "electron .",
+    "gen-art": "node art/generate.mjs"
   },
   "devDependencies": {
     "electron": "^42.3.0"
