@@ -3,8 +3,15 @@
   "version": "0.1.0",
   "description": "A desktop pet that grows as you code with Claude Code (state engine).",
   "type": "module",
-  "engines": { "node": ">=18" },
+  "main": "widget/main.cjs",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "widget": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^42.3.0"
   }
 }
