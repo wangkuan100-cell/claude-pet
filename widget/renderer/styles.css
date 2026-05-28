@@ -55,3 +55,4 @@ html, body { background: transparent; overflow: hidden; user-select: none; }
 #toast.show { animation: toastIn 2.6s ease both; }
 @keyframes toastIn { 0% { opacity: 0; transform: translate(-50%,12px); } 12%,80% { opacity: 1; transform: translate(-50%,0); } 100% { opacity: 0; transform: translate(-50%,-8px); } }
 .bubble-empathy { background: rgba(80,40,90,.92) !important; }
+#sprite-img { width: 120px; height: 120px; object-fit: contain; display: block; }

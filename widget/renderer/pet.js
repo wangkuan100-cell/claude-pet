@@ -13,8 +13,14 @@
     adopt.classList.add('hidden');
     pet.classList.remove('hidden');
 
-    $('sprite-base').textContent = data.sprite.base;
-    $('sprite-base').style.transform = `scale(${data.sprite.scale})`;
+    const img = $('sprite-img'), base = $('sprite-base');
+    if (data.sprite.imageSrc) {
+      img.src = data.sprite.imageSrc; img.classList.remove('hidden'); base.classList.add('hidden');
+    } else {
+      img.classList.add('hidden'); base.classList.remove('hidden');
+      base.textContent = data.sprite.base;
+      base.style.transform = `scale(${data.sprite.scale})`;
+    }
     $('sprite-expr').textContent = data.sprite.expr || '';
     $('sprite').classList.toggle('worried', data.expression === 'worried');
 

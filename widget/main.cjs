@@ -4,12 +4,14 @@ const path = require('node:path');
 let win = null;
 let logic = null;       // dynamically-imported ESM modules
 let stateSource = null;
+let spriteSource = null;
 let stopWatch = null;
 let decayTimer = null;
 
 async function loadModules() {
   logic = await import('./render-logic.js');
   stateSource = await import('./state-source.js');
+  spriteSource = await import('./sprite-source.js');
   return import('../src/state.js');
 }
 
@@ -21,6 +23,9 @@ function repaint() {
   if (data.mode === 'pet') {
     data.events = logic.paintEvents(lastPanel, data.panel);
     lastPanel = data.panel;
+    const assetsDir = path.join(__dirname, '..', 'assets');
+    const url = spriteSource.assetUrlFor(assetsDir, `${pet.species}/${pet.stage}/${logic.currentExpression(pet, new Date())}`);
+    if (url) data.sprite.imageSrc = url;
   } else {
     lastPanel = null;
   }
