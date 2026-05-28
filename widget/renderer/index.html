@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Adoption screen -->
+      <div id="adopt" class="hidden">
+        <div class="adopt-title">领养一只宠物</div>
+        <div id="species-grid"></div>
+      </div>
+      <!-- Pet view -->
+      <div id="pet" class="hidden">
+        <div id="bubble" class="hidden"></div>
+        <div id="sprite" class="drag"><span id="sprite-base"></span><span id="sprite-expr"></span></div>
+        <div id="panel" class="hidden">
+          <div id="panel-name"></div>
+          <div id="panel-level"></div>
+          <div class="xpbar"><div id="xpfill"></div></div>
+          <div id="panel-mood"></div>
+          <div id="panel-project"></div>
+          <div id="panel-ach"></div>
+        </div>
+      </div>
+    </div>
+    <script src="pet.js"></script>
+  </body>
+</html>
