@@ -48,13 +48,13 @@ test('buildPaintData adopt mode lists the six evolution lines', () => {
   assert.ok(data.lines.some((l) => l.id === 'phoenix' && l.emoji === '🔥' && l.name));
 });
 
-test('buildPaintData pet mode: sprite from line/form, mood as overlay emoji', () => {
+test('buildPaintData pet mode: sprite from line/form, mood as expression class', () => {
   const status = { repo: 'a/b', contextUsedPct: 85, sessionCostUsd: 0.5, alerts: ['context'] };
   // stage/level are independent fixture fields here — checks field wiring.
   const data = buildPaintData(pet({ species: 'phoenix', stage: 'legendary', mood: 90 }), status, NOW);
   assert.equal(data.mode, 'pet');
   assert.equal(data.sprite.base, '🔥'); // phoenix legendary placeholder
-  assert.equal(data.sprite.expr, '🤩'); // mood 90 -> flow overlay
+  assert.equal(data.expression, 'flow'); // mood 90 -> flow (shown via body animation, no overlay)
   assert.equal(data.bubble.kind, 'context');
   assert.equal(data.panel.level, 2);
   assert.equal(data.panel.xpPct, 50);

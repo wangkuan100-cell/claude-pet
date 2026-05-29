@@ -3,8 +3,6 @@ import { thresholdForLevel } from '../src/levels.js';
 import { LINES, LINE_IDS } from '../src/lines.js';
 import { spritePlaceholder } from './placeholders.js';
 
-const EXPR_EMOJI = { flow: '🤩', happy: '😄', normal: '🙂', sleepy: '😴', bored: '🥱', worried: '😟' };
-
 function hoursSince(iso, now) {
   return Math.max(0, (now.getTime() - new Date(iso).getTime()) / 3600000);
 }
@@ -77,7 +75,6 @@ export function buildPaintData(pet, status, now = new Date()) {
   }
   const expr = currentExpression(pet, now);
   const sprite = spritePlaceholder(spriteKey(pet));
-  sprite.expr = EXPR_EMOJI[expr] || null;
   let bubble = bubbleFor(status);
   if (!bubble && expr === 'worried') bubble = { kind: 'empathy', emoji: '🫂', text: '别灰心,我陪着你' };
   return { mode: 'pet', sprite, expression: expr, bubble, panel: panelData(pet, status, now) };

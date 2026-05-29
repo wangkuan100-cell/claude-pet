@@ -96,9 +96,10 @@ async function createWindow() {
   startWander();
 }
 
-// Opt-in (CLAUDE_PET_WANDER=1): every ~40s the pet strolls to a new spot on the bottom edge.
+// Default ON (opt out with CLAUDE_PET_WANDER=0): every ~40s the pet strolls to a new spot on
+// the bottom edge — at any stage, the egg included (there is no stage gate).
 function startWander() {
-  if (process.env.CLAUDE_PET_WANDER !== '1') return;
+  if (process.env.CLAUDE_PET_WANDER === '0') return;
   wanderTimer = setInterval(() => {
     if (!win || win.isDestroyed() || dragOrigin) return; // paused while dragging
     const wa = screen.getPrimaryDisplay().workAreaSize;

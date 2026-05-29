@@ -24,8 +24,6 @@
       base.textContent = data.sprite.base;
       base.style.transform = `scale(${data.sprite.scale})`;
     }
-    $('sprite-expr').textContent = data.sprite.expr || '';
-    $('sprite').classList.toggle('worried', data.expression === 'worried');
     $('sprite-stage').className = 'mood-' + (data.expression || 'normal');
     ensureParticles(true);
 
