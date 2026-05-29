@@ -1,6 +1,9 @@
 import { moodAfterDecay, expressionFor } from '../src/mood.js';
 import { thresholdForLevel } from '../src/levels.js';
-import { SPECIES, spritePlaceholder } from './placeholders.js';
+import { LINES, LINE_IDS } from '../src/lines.js';
+import { spritePlaceholder } from './placeholders.js';
+
+const EXPR_EMOJI = { flow: '🤩', happy: '😄', normal: '🙂', sleepy: '😴', bored: '🥱', worried: '😟' };
 
 function hoursSince(iso, now) {
   return Math.max(0, (now.getTime() - new Date(iso).getTime()) / 3600000);
@@ -18,9 +21,10 @@ export function currentExpression(pet, now) {
   return expressionFor({ mood: currentMood(pet, now), recentFailureActive: recentFailureActive(pet, now) });
 }
 
-export function spriteKey(pet, now) {
-  if (!pet.species) return 'egg';
-  return `${pet.species}/${pet.stage}/${currentExpression(pet, now)}`;
+// The image is keyed by line/form; the mood is shown as a small overlay emoji,
+// not baked into the sprite — so the key has no expression segment.
+export function spriteKey(pet) {
+  return pet.species ? `${pet.species}/${pet.stage}` : 'egg';
 }
 
 export function xpProgress(pet) {
@@ -50,7 +54,7 @@ export function bubbleFor(status) {
 export function panelData(pet, status, now) {
   const prog = xpProgress(pet);
   return {
-    name: pet.name || pet.species || 'egg',
+    name: pet.name || (LINES[pet.species]?.name) || pet.species || 'egg',
     level: pet.level,
     stage: pet.stage,
     mood: currentMood(pet, now),
@@ -68,27 +72,32 @@ export function panelData(pet, status, now) {
 }
 
 export function buildPaintData(pet, status, now = new Date()) {
-  if (!pet.species) return { mode: 'adopt', species: SPECIES };
+  if (!pet.species) {
+    return { mode: 'adopt', lines: LINE_IDS.map((id) => ({ id, emoji: LINES[id].emoji, name: LINES[id].name })) };
+  }
   const expr = currentExpression(pet, now);
+  const sprite = spritePlaceholder(spriteKey(pet));
+  sprite.expr = EXPR_EMOJI[expr] || null;
   let bubble = bubbleFor(status);
   if (!bubble && expr === 'worried') bubble = { kind: 'empathy', emoji: '🫂', text: '别灰心,我陪着你' };
-  return {
-    mode: 'pet',
-    sprite: spritePlaceholder(`${pet.species}/${pet.stage}/${expr}`),
-    expression: expr,
-    bubble,
-    panel: panelData(pet, status, now),
-  };
+  return { mode: 'pet', sprite, expression: expr, bubble, panel: panelData(pet, status, now) };
 }
 
 export function paintEvents(prevPanel, nextPanel) {
   if (!prevPanel || !nextPanel) {
-    return { leveledUp: false, newLevel: nextPanel ? nextPanel.level : null, newAchievements: [] };
+    return {
+      leveledUp: false, evolved: false,
+      newLevel: nextPanel ? nextPanel.level : null,
+      newStage: nextPanel ? nextPanel.stage : null,
+      newAchievements: [],
+    };
   }
   const prev = new Set(prevPanel.achievements || []);
   return {
     leveledUp: nextPanel.level > prevPanel.level,
+    evolved: !!nextPanel.stage && nextPanel.stage !== prevPanel.stage,
     newLevel: nextPanel.level,
+    newStage: nextPanel.stage,
     newAchievements: (nextPanel.achievements || []).filter((a) => !prev.has(a)),
   };
 }

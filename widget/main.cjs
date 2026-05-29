@@ -24,7 +24,7 @@ function repaint() {
     data.events = logic.paintEvents(lastPanel, data.panel);
     lastPanel = data.panel;
     const assetsDir = path.join(__dirname, '..', 'assets');
-    const url = spriteSource.assetUrlFor(assetsDir, `${pet.species}/${pet.stage}/${logic.currentExpression(pet, new Date())}`);
+    const url = spriteSource.assetUrlFor(assetsDir, `${pet.species}/${pet.stage}`);
     if (url) data.sprite.imageSrc = url;
   } else {
     lastPanel = null;
