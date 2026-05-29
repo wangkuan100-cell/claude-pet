@@ -433,7 +433,9 @@ Expected: FAIL — cannot find module `../src/tests-detect.js`.
 ```js
 const TEST_CMD = /(^|\s|&&|;|\|)(npm|pnpm|yarn|bun)\s+(run\s+)?test\b|vitest|jest|mocha|pytest|py\.test|unittest|go\s+test|cargo\s+test|node\s+--test|rspec|phpunit|gradle\s+test|mvn\s+test/i;
 const PASS = /\b(\d+\s+passed|all tests passed|tests?\s+passed|ok\b|✓|PASS\b)/i;
-const FAIL = /\b(\d+\s+failed|failure|failed|✗|FAIL\b|error)/i;
+// Only treat a NON-ZERO failure/error count (or an explicit FAIL/✗ marker) as failure,
+// so "5 passed, 0 failed" is still a success.
+const FAIL = /[1-9]\d*\s+(failed|failures|errors?)|✗|\bFAIL\b/i;
 
 export function isTestCommand(cmd) {
   return TEST_CMD.test(cmd || '');
@@ -719,7 +721,7 @@ git commit -m "feat: parse token usage from session transcript"
 - Create: `src/git.js`
 - Test: `test/git.test.js`
 
-`gitSnapshot` and `newCommitsSince` take an injected `runGit(args) => { code, stdout }` so tests never touch a real repo and the read-only invariant is provable. `runGit` only ever receives read-only subcommands.
+`gitSnapshot` and `newCommitsSince` take an injected `runGit(args) => { code, stdout }` so tests never touch a real repo and the read-only invariant is provable. `runGit` only ever receives read-only subcommands. Fields are space-separated; since a git hash never contains a space, we split on the FIRST space only, so commit subjects that contain spaces stay intact.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -741,11 +743,12 @@ function fakeGit(map) {
 
 test('gitSnapshot reads branch, dirty count, and last commit', () => {
   const now = new Date('2026-05-28T12:00:00Z');
+  const ct = Math.floor(now.getTime() / 1000) - 3600; // committed 60 min ago
   const run = fakeGit({
     'rev-parse --is-inside-work-tree': { code: 0, stdout: 'true\n' },
     'rev-parse --abbrev-ref HEAD': { code: 0, stdout: 'main\n' },
     'status --porcelain': { code: 0, stdout: ' M a.js\n?? b.js\n' },
-    'log -1 --format=%H%x00%ct': { code: 0, stdout: 'abc123 1748430000\n' }, // 2026-05-28T11:00:00Z
+    'log -1 --format=%H %ct': { code: 0, stdout: `abc123 ${ct}\n` },
   });
   const snap = gitSnapshot(run, now);
   assert.equal(snap.isRepo, true);
@@ -761,9 +764,9 @@ test('gitSnapshot reports non-repo cleanly', () => {
   assert.equal(snap.isRepo, false);
 });
 
-test('newCommitsSince parses hash+subject pairs', () => {
+test('newCommitsSince parses hash and subject, keeping spaces in the subject', () => {
   const run = fakeGit({
-    'log abc..HEAD --format=%H%x00%s': { code: 0, stdout: 'h2 feat: x\nh1 fix: y\n' },
+    'log abc..HEAD --format=%H %s': { code: 0, stdout: 'h2 feat: x\nh1 fix: y\n' },
   });
   const commits = newCommitsSince(run, 'abc');
   assert.deepEqual(commits, [
@@ -774,7 +777,7 @@ test('newCommitsSince parses hash+subject pairs', () => {
 
 test('newCommitsSince with no baseline returns only HEAD (no backfill)', () => {
   const run = fakeGit({
-    'log -1 --format=%H%x00%s': { code: 0, stdout: 'head1 initial\n' },
+    'log -1 --format=%H %s': { code: 0, stdout: 'head1 initial\n' },
   });
   const commits = newCommitsSince(run, null);
   assert.deepEqual(commits, [{ hash: 'head1', message: 'initial' }]);
@@ -789,7 +792,12 @@ Expected: FAIL — cannot find module `../src/git.js`.
 - [ ] **Step 3: Write minimal implementation**
 
 ```js
-const NUL = ' ';
+// git --format outputs "<hash> <field>"; a hash never contains a space, so we
+// split on the FIRST space only and keep the rest (the commit subject) intact.
+function splitFirst(line) {
+  const i = line.indexOf(' ');
+  return i === -1 ? [line, ''] : [line.slice(0, i), line.slice(i + 1)];
+}
 
 export function gitSnapshot(runGit, now = new Date()) {
   const inside = runGit(['rev-parse', '--is-inside-work-tree']);
@@ -799,10 +807,10 @@ export function gitSnapshot(runGit, now = new Date()) {
   const status = runGit(['status', '--porcelain']).stdout;
   const dirtyCount = status.split('\n').filter((l) => l.trim().length > 0).length;
 
-  const log = runGit(['log', '-1', '--format=%H' + NUL + '%ct']);
+  const log = runGit(['log', '-1', '--format=%H %ct']);
   let lastCommitHash = null, minsSinceLastCommit = null;
   if (log.code === 0 && log.stdout.trim()) {
-    const [hash, ct] = log.stdout.trim().split(NUL);
+    const [hash, ct] = splitFirst(log.stdout.trim());
     lastCommitHash = hash;
     minsSinceLastCommit = Math.round((now.getTime() / 1000 - Number(ct)) / 60);
   }
@@ -810,18 +818,22 @@ export function gitSnapshot(runGit, now = new Date()) {
 }
 
 export function newCommitsSince(runGit, lastSeenHash) {
+  const fmt = '--format=%H %s';
   if (!lastSeenHash) {
-    const head = runGit(['log', '-1', '--format=%H' + NUL + '%s']);
+    const head = runGit(['log', '-1', fmt]);
     if (head.code !== 0 || !head.stdout.trim()) return [];
-    const [hash, message] = head.stdout.trim().split(NUL);
+    const [hash, message] = splitFirst(head.stdout.trim());
     return [{ hash, message }];
   }
-  const out = runGit(['log', `${lastSeenHash}..HEAD`, '--format=%H' + NUL + '%s']);
+  const out = runGit(['log', `${lastSeenHash}..HEAD`, fmt]);
   if (out.code !== 0) return [];
-  return out.stdout.split('\n').filter((l) => l.trim()).map((l) => {
-    const [hash, message] = l.split(NUL);
-    return { hash, message };
-  });
+  return out.stdout
+    .split('\n')
+    .filter((l) => l.trim())
+    .map((l) => {
+      const [hash, message] = splitFirst(l);
+      return { hash, message };
+    });
 }
 ```
 
@@ -1008,7 +1020,7 @@ test('feat commit awards big xp, bumps features, raises mood, can level up', () 
 test('milestone awards 300 and unlocks first-release', () => {
   const { pet, unlocked } = applyEvent(defaultPet(T0.toISOString()), acc(), { type: 'milestone' }, T0);
   assert.equal(pet.xp, 300);
-  assert.equal(pet.level, 3); // 300 -> Lv3
+  assert.equal(pet.level, 2); // 300 xp -> Lv2 (>=150, <450)
   assert.ok(unlocked.includes('first-release'));
 });
 
@@ -1256,7 +1268,7 @@ git commit -m "feat: persist per-session XP accumulator"
 ```js
 import { spawnSync } from 'node:child_process';
 
-const ALLOWED = new Set(['status', 'log', 'tag', 'rev-parse', 'config', 'describe']);
+const ALLOWED = new Set(['rev-parse', 'status', 'log']);
 
 export function makeGitRunner(cwd) {
   return function runGit(args) {
@@ -1304,6 +1316,24 @@ test('PostToolUse Write event adds line XP to pet.json and exits 0', () => {
   assert.equal(pet.lifetime.linesAdded, 3);
 });
 
+test('PostToolUse MultiEdit counts lines across all edits', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
+  const r = runHook(home, {
+    hook_event_name: 'PostToolUse',
+    session_id: 's1',
+    cwd: home,
+    tool_name: 'MultiEdit',
+    tool_input: {
+      file_path: path.join(home, 'x.js'),
+      edits: [{ old_string: 'a', new_string: 'a\nb' }, { old_string: 'c', new_string: 'c\nd\ne' }],
+    },
+    tool_response: {},
+  });
+  assert.equal(r.status, 0);
+  const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(pet.lifetime.linesAdded, 5); // 2 + 3 lines across the two edits
+});
+
 test('SessionStart bumps session count and exits 0', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
   const r = runHook(home, { hook_event_name: 'SessionStart', session_id: 's1', cwd: home, source: 'startup' });
@@ -1346,10 +1376,16 @@ function readStdin() {
   try { return fs.readFileSync(0, 'utf8'); } catch { return ''; }
 }
 
+function countText(s) {
+  return s ? s.split('\n').filter((l) => l.length > 0).length : 0;
+}
+
 function countLines(toolInput) {
-  const content = toolInput?.content ?? toolInput?.new_string ?? '';
-  if (!content) return 0;
-  return content.split('\n').filter((l) => l.length > 0).length;
+  // MultiEdit carries an `edits` array; Write has `content`; Edit has `new_string`.
+  if (Array.isArray(toolInput?.edits)) {
+    return toolInput.edits.reduce((n, e) => n + countText(e.new_string), 0);
+  }
+  return countText(toolInput?.content ?? toolInput?.new_string);
 }
 
 function main() {
@@ -1366,9 +1402,6 @@ function main() {
     pet.lifetime.sessions += 1;
     session.startedAt = now.toISOString();
   } else if (event === 'PostToolUse') {
-    if (hook.tool_name === 'Write' && hook.tool_input?.file_path && !fs.existsSync(hook.tool_input.file_path)) {
-      events.push({ type: 'newFile' });
-    }
     if (['Write', 'Edit', 'MultiEdit'].includes(hook.tool_name)) {
       events.push({ type: 'lines', count: countLines(hook.tool_input) });
     }
@@ -1379,7 +1412,7 @@ function main() {
     }
   }
 
-  // Read-only git: detect new commits + tags since last seen, per repo.
+  // Read-only git: detect new commits since last seen, per repo.
   let snapshot = { isRepo: false };
   if (hook.cwd) {
     const runGit = makeGitRunner(hook.cwd);
@@ -1387,7 +1420,7 @@ function main() {
       snapshot = gitSnapshot(runGit, now);
       if (snapshot.isRepo) {
         const repoKey = hook.cwd;
-        pet.repos[repoKey] = pet.repos[repoKey] || { lastSeenCommit: null, lastSeenTag: null };
+        pet.repos[repoKey] = pet.repos[repoKey] || { lastSeenCommit: null };
         const seen = pet.repos[repoKey].lastSeenCommit;
         const fresh = newCommitsSince(runGit, seen);
         if (seen) {
@@ -1419,7 +1452,7 @@ function main() {
   saveSession(hook.session_id, session);
   const activeMins = session.startedAt ? (now - new Date(session.startedAt)) / 60000 : 0;
   saveStatus(buildStatus({
-    cwd: hook.cwd, repo: snapshot.isRepo ? snapshot.branch && hook.cwd : null,
+    cwd: hook.cwd, repo: snapshot.isRepo ? hook.cwd : null,
     snapshot, usage, costUsd: 0, activeMins,
   }, now));
 }
@@ -1430,7 +1463,7 @@ try { main(); } catch { /* never block Claude */ } finally { process.exit(0); }
 - [ ] **Step 5: Run test to verify it passes**
 
 Run: `node --test test/hook.test.js`
-Expected: PASS (3 tests).
+Expected: PASS (4 tests).
 
 - [ ] **Step 6: Commit**
 
@@ -1742,3 +1775,8 @@ git commit -m "docs: add M1 README"
 - M2: Electron transparent always-on-top window; first-run adoption screen; `fs.watch` on `pet.json`/`status.json`; fixture mode.
 - M3: reminder bubbles from `status.alerts`, level-up + achievement animations, worried/empathy expression, live idle decay between events.
 - M4: GPT Image 2.0 build-time asset pipeline; `plugin.json` finalize + `marketplace.json`; `monitors` auto-launch (verify capability) with SessionStart pidfile fallback; optional statusline integration for exact cost/context.
+
+## Known M1 simplifications
+- **Strict "≥3 consecutive failures":** DONE — `engine.applyEvent` now counts `sessionAcc.failures`, only drops mood / sets `recentFailureUntil` once it reaches `FAILURE_STREAK_THRESHOLD` (3), and resets the counter on a test pass. A lone failed test (normal TDD red) no longer saddens the pet.
+- **`newFile` +15 bonus:** DONE — `hook.js` emits a `newFile` event when the Write `tool_response.type === 'create'`. (Heuristic: depends on Claude Code reporting `type:'create'` for new files; if the real field differs the bonus simply doesn't fire — no harm. Verify the actual `tool_response` shape against live runs.)
+- **Git-tag auto-detection of releases (still deferred):** spec §8 lists a new `git tag` as a +300 milestone trigger; M1 only supports the manual `/pet milestone` path. Re-add a read-only `git tag` listing when wiring this up (revisit in a later milestone).

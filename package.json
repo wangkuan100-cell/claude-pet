@@ -1,0 +1,18 @@
+{
+  "name": "claude-pet",
+  "version": "0.1.0",
+  "description": "A desktop pet that grows as you code with Claude Code (state engine).",
+  "type": "module",
+  "main": "widget/main.cjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "widget": "electron .",
+    "gen-art": "node art/generate.mjs"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "claude-pet",
+  "version": "0.4.0",
+  "description": "A desktop pet that grows as you code with Claude Code — read-only state engine, Electron widget, reminders, and achievements.",
+  "author": { "name": "kuan" },
+  "repository": "https://github.com/wangkuan100-cell/claude-pet"
+}
