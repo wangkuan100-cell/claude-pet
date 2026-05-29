@@ -3,13 +3,14 @@ import path from 'node:path';
 import { promptFor, spriteMatrix, outputPath } from './prompts.js';
 import { LINE_IDS } from '../src/lines.js';
 
-// Real OpenAI Images call. Model id is configurable because "GPT Image 2.0" may
-// be `gpt-image-2` or similar — set OPENAI_IMAGE_MODEL to match current docs.
+// Real OpenAI Images call. Defaults to gpt-image-1: it supports the transparent
+// backgrounds the floating widget needs, whereas gpt-image-2 currently rejects
+// background:'transparent'. Override the model with OPENAI_IMAGE_MODEL.
 // Returns a Buffer of PNG bytes. Requires OPENAI_API_KEY.
 export async function requestImage(prompt) {
   const key = process.env.OPENAI_API_KEY;
   if (!key) throw new Error('OPENAI_API_KEY is required to generate art');
-  const model = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2';
+  const model = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';
   const res = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },

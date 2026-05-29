@@ -17,10 +17,10 @@ The engine never modifies your project. It only writes under `~/.claude-pet/`
 A floating Electron window shows your pet and reacts to coding activity.
 
 - Run it: `npm run widget` (requires the M1 hooks to be writing `~/.claude-pet/`).
-- First launch shows an adoption screen; pick a species. The pet then grows, changes
+- First launch shows an adoption screen; pick an evolution line. The pet then grows, changes
   expression with mood, shows reminder bubbles (context full / uncommitted / take-a-break),
   and a click opens a stats panel (level, XP, mood, project, achievements).
-- Art is emoji placeholder for now; real generated art arrives in M4.
+- Cartoon-3D generated art (M5): pick one of **6 evolution lines**; the pet grows through 6 forms (egg → … → a legendary final form like 🔥 phoenix) with an evolution flash. Falls back to emoji until art is generated.
 - `CLAUDE_PET_HOME` overrides the state dir (useful for a fixture/demo).
 - M3 polish: level-up celebration + achievement toasts, an empathy bubble when tests keep failing, and click-through so the window never blocks what's behind it.
 
@@ -38,13 +38,14 @@ Or clone and point Claude Code at the local plugin dir.
 
 ## Pet commands
 - `/pet` (or `node bin/pet.js status`) — status
-- `/pet adopt <species>`, `/pet rename <name>`, `/pet milestone "<text>"`
+- `/pet adopt <line>` (phoenix · dragon · kitsune · cerberus · sphinx · golem), `/pet rename <name>`, `/pet milestone "<text>"`
 - `/pet start` / `/pet stop` — show/hide the widget
 - Opt into auto-launch on session start: set `CLAUDE_PET_AUTOLAUNCH=1`
 
 ## Generating art (one-time, author)
-The widget ships with emoji placeholders. To generate real sprites with GPT Image 2.0:
+Cute cartoon-3D sprites (6 lines × 6 forms = 36 PNGs) are generated via the OpenAI Images API:
 ```
-OPENAI_API_KEY=sk-... OPENAI_IMAGE_MODEL=gpt-image-2 npm run gen-art
+OPENAI_API_KEY=sk-... npm run gen-art            # all lines
+OPENAI_API_KEY=sk-... npm run gen-art phoenix    # just one line
 ```
-PNGs land in `assets/<species>/<stage>/<expression>.png` and are picked up automatically.
+Defaults to `gpt-image-1` (it supports the transparent backgrounds the floating widget needs; `gpt-image-2` currently rejects transparent — override with `OPENAI_IMAGE_MODEL`). PNGs land in `assets/<line>/<form>.png` and the widget picks them up automatically (emoji fallback until then).
