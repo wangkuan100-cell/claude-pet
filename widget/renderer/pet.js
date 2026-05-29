@@ -1,6 +1,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
   let panelOpen = false;
+  let drag = null;
 
   function paint(data) {
     const adopt = $('adopt'), pet = $('pet');
@@ -105,11 +106,30 @@
     }
   }
 
-  $('sprite').addEventListener('click', () => {
+  function togglePanel() {
     panelOpen = !panelOpen;
     $('panel').classList.toggle('hidden', !panelOpen);
     const st = $('sprite-stage');
     if (st) { st.classList.add('pop'); setTimeout(() => st.classList.remove('pop'), 320); }
+  }
+
+  // Drag the pet to move the window; a press that doesn't move is a click → toggle the panel.
+  $('sprite').addEventListener('mousedown', (e) => {
+    drag = { sx: e.screenX, sy: e.screenY, moved: false };
+    if (window.api) window.api.dragStart({ sx: e.screenX, sy: e.screenY });
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!drag) return;
+    if (Math.abs(e.screenX - drag.sx) + Math.abs(e.screenY - drag.sy) > 4) drag.moved = true;
+    if (drag.moved && window.api) window.api.dragMove({ sx: e.screenX, sy: e.screenY });
+  });
+  document.addEventListener('mouseup', () => {
+    if (!drag) return;
+    const wasDrag = drag.moved;
+    drag = null;
+    if (window.api) window.api.dragEnd();
+    if (!wasDrag) togglePanel();
   });
 
   // Capture the mouse only while the pointer is over real UI; otherwise clicks pass through.
@@ -119,7 +139,7 @@
       const el = document.querySelector(sel);
       if (!el) continue;
       el.addEventListener('mouseenter', () => set(true));
-      el.addEventListener('mouseleave', () => set(false));
+      el.addEventListener('mouseleave', () => { if (!drag) set(false); });
     }
   })();
 

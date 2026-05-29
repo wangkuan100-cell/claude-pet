@@ -5,6 +5,8 @@ let win = null;
 let logic = null;       // dynamically-imported ESM modules
 let stateSource = null;
 let spriteSource = null;
+let winPos = null;
+let dragOrigin = null;
 let stopWatch = null;
 let decayTimer = null;
 
@@ -12,6 +14,7 @@ async function loadModules() {
   logic = await import('./render-logic.js');
   stateSource = await import('./state-source.js');
   spriteSource = await import('./sprite-source.js');
+  winPos = await import('./window-pos.js');
   return import('../src/state.js');
 }
 
@@ -36,8 +39,9 @@ async function createWindow() {
   const stateApi = await loadModules();
 
   const { width } = screen.getPrimaryDisplay().workAreaSize;
+  const saved = winPos.loadPos();
   win = new BrowserWindow({
-    width: 240, height: 300, x: width - 280, y: 80,
+    width: 240, height: 300, x: saved ? saved.x : width - 280, y: saved ? saved.y : 80,
     frame: false, transparent: true, resizable: false, alwaysOnTop: true,
     skipTaskbar: true, hasShadow: false,
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, sandbox: false },
@@ -64,6 +68,13 @@ async function createWindow() {
   ipcMain.on('set-interactive', (_e, on) => {
     if (win && !win.isDestroyed()) win.setIgnoreMouseEvents(!on, { forward: true });
   });
+  // Manual window drag: the renderer reports screen mouse coords; move the window by the same delta.
+  ipcMain.on('drag-start', (_e, p) => { if (win && !win.isDestroyed()) dragOrigin = { sx: p.sx, sy: p.sy, pos: win.getPosition() }; });
+  ipcMain.on('drag-move', (_e, p) => {
+    if (!win || win.isDestroyed() || !dragOrigin) return;
+    win.setPosition(Math.round(dragOrigin.pos[0] + p.sx - dragOrigin.sx), Math.round(dragOrigin.pos[1] + p.sy - dragOrigin.sy));
+  });
+  ipcMain.on('drag-end', () => { if (win && !win.isDestroyed() && winPos) winPos.savePos(win.getPosition()); dragOrigin = null; });
 }
 
 app.whenReady().then(createWindow);

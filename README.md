@@ -23,6 +23,8 @@ A floating Electron window shows your pet and reacts to coding activity.
 - Cartoon-3D generated art (M5): pick one of **6 evolution lines**; the pet grows through 6 forms (egg → … → a legendary final form like 🔥 phoenix) with an evolution flash. Falls back to emoji until art is generated.
 - `CLAUDE_PET_HOME` overrides the state dir (useful for a fixture/demo).
 - M3 polish: level-up celebration + achievement toasts, an empathy bubble when tests keep failing, and click-through so the window never blocks what's behind it.
+- M6: a continuous pseudo-3D idle animation (gentle float + tilt) with mood-driven tempo and ambient particles.
+- M7: **drag the pet anywhere** on screen — it remembers where you put it (saved to `~/.claude-pet/widget.json`); a plain click still opens the stats panel.
 
 ## Env
 - `CLAUDE_PET_HOME` — state dir (default `~/.claude-pet`).
