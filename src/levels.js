@@ -14,6 +14,6 @@ export function levelForXp(xp) {
 }
 
 export function stageForLevel(level) {
-  const stages = { 1: 'egg', 2: 'hatchling', 3: 'child', 4: 'teen', 5: 'adult' };
-  return stages[level] || `evolved${level - 5}`;
+  const forms = { 1: 'egg', 2: 'hatchling', 3: 'juvenile', 4: 'adolescent', 5: 'adult' };
+  return forms[level] || 'legendary';
 }

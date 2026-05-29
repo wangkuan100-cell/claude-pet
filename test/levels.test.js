@@ -19,14 +19,14 @@ test('levelForXp doubles thresholds beyond the table', () => {
   assert.equal(levelForXp(36000), 9);
 });
 
-test('stageForLevel names life stages', () => {
+test('stageForLevel maps levels to the six evolution form tiers', () => {
   assert.equal(stageForLevel(1), 'egg');
   assert.equal(stageForLevel(2), 'hatchling');
-  assert.equal(stageForLevel(3), 'child');
-  assert.equal(stageForLevel(4), 'teen');
+  assert.equal(stageForLevel(3), 'juvenile');
+  assert.equal(stageForLevel(4), 'adolescent');
   assert.equal(stageForLevel(5), 'adult');
-  assert.equal(stageForLevel(6), 'evolved1');
-  assert.equal(stageForLevel(8), 'evolved3');
+  assert.equal(stageForLevel(6), 'legendary');
+  assert.equal(stageForLevel(9), 'legendary');
 });
 
 test('thresholdForLevel returns cumulative-XP thresholds, doubling past the table', () => {
