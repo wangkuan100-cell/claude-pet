@@ -74,6 +74,7 @@ export function buildPaintData(pet, status, now = new Date()) {
   // in normal pet mode (there is no adoption screen; the species is rolled randomly on hatch).
   const expr = currentExpression(pet, now);
   const sprite = spritePlaceholder(spriteKey(pet));
+  sprite.key = spriteKey(pet); // 'line/form' (or 'egg') so the 3D renderer can pick the creature
   let bubble = bubbleFor(status);
   if (!bubble && expr === 'worried') bubble = { kind: 'empathy', emoji: '🫂', text: '别灰心,我陪着你' };
   return { mode: 'pet', sprite, expression: expr, bubble, panel: panelData(pet, status, now) };

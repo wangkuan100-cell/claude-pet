@@ -3,21 +3,30 @@
   let panelOpen = false;
   let drag = null;
   let clickTimer = null;
+  let use3D = false;
 
   function paint(data) {
     const pet = $('pet');
     if (!data) { ensureParticles(false); return; }
     pet.classList.remove('hidden');
 
-    const img = $('sprite-img'), base = $('sprite-base');
-    if (data.sprite.imageSrc) {
-      img.src = data.sprite.imageSrc; img.classList.remove('hidden'); base.classList.add('hidden');
+    if (use3D) {
+      const key = (data.sprite && data.sprite.key) || 'egg';
+      let line = null, form = 'egg';
+      if (key !== 'egg' && key.indexOf('/') > -1) { const parts = key.split('/'); line = parts[0]; form = parts[1]; }
+      window.Pet3D.setForm(line, form);
+      window.Pet3D.setMood(data.expression || 'normal');
     } else {
-      img.classList.add('hidden'); base.classList.remove('hidden');
-      base.textContent = data.sprite.base;
-      base.style.transform = `scale(${data.sprite.scale})`;
+      const img = $('sprite-img'), base = $('sprite-base');
+      if (data.sprite.imageSrc) {
+        img.src = data.sprite.imageSrc; img.classList.remove('hidden'); base.classList.add('hidden');
+      } else {
+        img.classList.add('hidden'); base.classList.remove('hidden');
+        base.textContent = data.sprite.base;
+        base.style.transform = `scale(${data.sprite.scale})`;
+      }
+      $('sprite-stage').className = 'mood-' + (data.expression || 'normal');
     }
-    $('sprite-stage').className = 'mood-' + (data.expression || 'normal');
     ensureParticles(true);
 
     const bubble = $('bubble');
@@ -42,8 +51,8 @@
 
     // Animate transitions main computed for us.
     const ev = data.events;
-    if (ev && ev.evolved) evolve(ev.newStage);
-    else if (ev && ev.leveledUp) celebrate(`Lv ${ev.newLevel}!`);
+    if (ev && ev.evolved) { if (use3D) window.Pet3D.react('evolve'); evolve(ev.newStage); }
+    else if (ev && ev.leveledUp) { if (use3D) window.Pet3D.react('levelup'); celebrate(`Lv ${ev.newLevel}!`); }
     else if (ev && ev.newAchievements && ev.newAchievements.length) toast(`🏆 ${ev.newAchievements[0]}`);
   }
 
@@ -126,6 +135,7 @@
   }
   function feed() {
     if (window.api) window.api.feed();
+    if (use3D && window.Pet3D) window.Pet3D.react('feed');
     const st = $('sprite-stage');
     if (st) { st.classList.remove('eat'); void st.offsetWidth; st.classList.add('eat'); setTimeout(() => st.classList.remove('eat'), 640); }
     for (let i = 0; i < 3; i++) spawnHeart();
@@ -155,6 +165,13 @@
       el.addEventListener('mouseleave', () => { if (!drag) set(false); });
     }
   })();
+
+  // Initialize the real-3D pet; fall back to the 2D sprite if WebGL/three.js is unavailable.
+  if (window.Pet3D) {
+    window.Pet3D.init($('stage3d'));
+    if (window.Pet3D.ready) { use3D = true; const st = $('sprite-stage'); if (st) st.style.display = 'none'; }
+    else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
+  } else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
 
   if (window.api) {
     window.api.onPaint(paint);

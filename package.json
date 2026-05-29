@@ -34,6 +34,7 @@
     "gen-art": "node art/generate.mjs"
   },
   "devDependencies": {
-    "electron": "^42.3.0"
+    "electron": "^42.3.0",
+    "three": "^0.148.0"
   }
 }
