@@ -12,9 +12,8 @@
 
     if (use3D) {
       const key = (data.sprite && data.sprite.key) || 'egg';
-      let line = null, form = 'egg';
-      if (key !== 'egg' && key.indexOf('/') > -1) { const parts = key.split('/'); line = parts[0]; form = parts[1]; }
-      window.Pet3D.setForm(line, form);
+      const form = (key !== 'egg' && key.indexOf('/') > -1) ? key.split('/')[1] : 'egg';
+      window.Pet3D.show({ imageSrc: data.sprite.imageSrc || null, emoji: data.sprite.base || '🥚', form });
       window.Pet3D.setMood(data.expression || 'normal');
     } else {
       const img = $('sprite-img'), base = $('sprite-base');

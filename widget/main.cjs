@@ -34,7 +34,9 @@ function repaint() {
     data.events = logic.paintEvents(lastPanel, data.panel);
     lastPanel = data.panel;
     const assetsDir = path.join(__dirname, '..', 'assets');
-    const url = spriteSource.assetUrlFor(assetsDir, `${pet.species}/${pet.stage}`);
+    // data URL (not file://) so the 3D renderer can upload it as a WebGL texture; <img> in the
+    // 2D fallback accepts it too.
+    const url = spriteSource.assetDataUrl(assetsDir, `${pet.species}/${pet.stage}`);
     if (url) data.sprite.imageSrc = url;
     // When reminders are toggled off, hide the nag bubbles (context/git/rest) but keep the
     // supportive empathy bubble.
