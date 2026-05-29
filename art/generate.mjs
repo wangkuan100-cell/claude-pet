@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { promptFor, spriteMatrix, outputPath, SPECIES } from './prompts.js';
+import { promptFor, spriteMatrix, outputPath } from './prompts.js';
+import { LINE_IDS } from '../src/lines.js';
 
 // Real OpenAI Images call. Model id is configurable because "GPT Image 2.0" may
 // be `gpt-image-2` or similar — set OPENAI_IMAGE_MODEL to match current docs.
@@ -24,7 +25,7 @@ export async function generateAll(items, { assetsDir, requestImage: req = reques
   for (const item of items) {
     const out = outputPath(assetsDir, item);
     fs.mkdirSync(path.dirname(out), { recursive: true });
-    const png = await req(promptFor(item.species, item.stage, item.expr), item);
+    const png = await req(promptFor(item.line, item.form), item);
     fs.writeFileSync(out, png);
     written += 1;
   }
@@ -34,7 +35,7 @@ export async function generateAll(items, { assetsDir, requestImage: req = reques
 // CLI entry: `OPENAI_API_KEY=... npm run gen-art [species]`
 if (import.meta.url === `file://${process.argv[1]}`) {
   const only = process.argv[2];
-  const items = spriteMatrix(only ? [only] : SPECIES);
+  const items = spriteMatrix(only ? [only] : LINE_IDS);
   const assetsDir = path.resolve('assets');
   console.log(`Generating ${items.length} sprites into ${assetsDir} …`);
   generateAll(items, { assetsDir }).then((r) => console.log(`Done: ${r.written} PNGs.`))
