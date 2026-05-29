@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { LINES, LINE_IDS, FORMS, lineFor } from '../src/lines.js';
+import { LINES, LINE_IDS, FORMS, lineFor, pickSpecies } from '../src/lines.js';
 
 test('there are 6 lines, each with all 6 forms', () => {
   assert.equal(LINE_IDS.length, 6);
@@ -20,4 +20,10 @@ test('phoenix line matches the spec example and lineFor works', () => {
   assert.equal(lineFor('phoenix').name, '凤凰');
   assert.equal(lineFor('phoenix').forms.legendary.emoji, '🔥');
   assert.equal(lineFor('nope'), null);
+});
+
+test('pickSpecies returns a line id, deterministic under an injected rng', () => {
+  assert.equal(pickSpecies(() => 0), LINE_IDS[0]);
+  assert.equal(pickSpecies(() => 0.999), LINE_IDS[LINE_IDS.length - 1]);
+  assert.ok(LINE_IDS.includes(pickSpecies(() => 0.5)));
 });

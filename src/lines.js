@@ -74,3 +74,8 @@ export const LINES = {
 
 export const LINE_IDS = Object.keys(LINES);
 export function lineFor(id) { return LINES[id] || null; }
+
+// The egg hatches into a uniformly-random line — the user never chooses. rng is injectable for tests.
+export function pickSpecies(rng = Math.random) {
+  return LINE_IDS[Math.floor(rng() * LINE_IDS.length)];
+}

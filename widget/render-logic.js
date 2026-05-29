@@ -1,6 +1,6 @@
 import { moodAfterDecay, expressionFor } from '../src/mood.js';
 import { thresholdForLevel } from '../src/levels.js';
-import { LINES, LINE_IDS } from '../src/lines.js';
+import { LINES } from '../src/lines.js';
 import { spritePlaceholder } from './placeholders.js';
 
 function hoursSince(iso, now) {
@@ -70,9 +70,8 @@ export function panelData(pet, status, now) {
 }
 
 export function buildPaintData(pet, status, now = new Date()) {
-  if (!pet.species) {
-    return { mode: 'adopt', lines: LINE_IDS.map((id) => ({ id, emoji: LINES[id].emoji, name: LINES[id].name })) };
-  }
+  // Before hatching, species is null — spriteKey falls back to the generic egg, so it renders
+  // in normal pet mode (there is no adoption screen; the species is rolled randomly on hatch).
   const expr = currentExpression(pet, now);
   const sprite = spritePlaceholder(spriteKey(pet));
   let bubble = bubbleFor(status);

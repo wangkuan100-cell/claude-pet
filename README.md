@@ -24,7 +24,7 @@ It is built around one hard rule: **the pet never touches your project.** The ho
 ## Highlights
 
 - **Grows as you code.** XP comes from commits (a `feat` is worth more than a `chore`), passing tests, new files, milestones, and tokens, with a daily-streak multiplier. Six levels carry your pet from egg to a legendary final form, with a celebratory flash at every evolution.
-- **Six evolution lines.** Adopt a phoenix, dragon, kitsune, cerberus, sphinx, or golem — each grows through six hand-generated cartoon-3D forms.
+- **Six evolution lines, hatched at random.** Every pet starts as an egg and hatches into one of six creatures — phoenix, dragon, kitsune, cerberus, sphinx, or golem — chosen randomly (you don't pick). Each grows through six hand-generated cartoon-3D forms.
 - **Moods you can read at a glance.** The pet's body language reflects how things are going: peppy when you're in flow, drowsy when idle, and an anxious sway (plus an encouraging word) when tests keep failing.
 - **Gentle reminders.** Speech bubbles for a near-full context window, uncommitted changes piling up, or a long stretch without a break.
 - **Lives on your desktop.** A frameless, transparent, always-on-top window. Drag it anywhere (it remembers), click for a stats panel, double-click to feed it a treat — and it wanders along the bottom edge on its own. Clicks pass through everywhere except the pet itself.
@@ -77,10 +77,11 @@ node --test     # optional: run the test suite
 
 ## Usage
 
-### Adopt and grow
+### Grow and hatch
+
+Everyone starts as an egg. **Which creature it hatches into is random — you don't choose.** Keep coding and it hatches once it grows past level 1.
 
 ```
-/pet adopt dragon            # phoenix · dragon · kitsune · cerberus · sphinx · golem
 /pet                         # status: level, mood, xp, project, alerts
 /pet rename Ember            # give it a name
 /pet milestone "shipped v1"  # log a milestone (+300 xp)

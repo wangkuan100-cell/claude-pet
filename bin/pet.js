@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { loadPet, savePet, loadStatus } from '../src/state.js';
 import { applyEvent } from '../src/engine.js';
-import { LINE_IDS } from '../src/lines.js';
 const [cmd = 'status', ...rest] = process.argv.slice(2);
 
 function printStatus() {
@@ -9,7 +8,7 @@ function printStatus() {
   const status = loadStatus();
   const name = pet.name || (pet.species ? pet.species : 'egg');
   console.log(`${name} — Lv ${pet.level} (${pet.stage}), mood ${pet.mood}, xp ${pet.xp}`);
-  if (pet.species === null) console.log('Not adopted yet — run: /pet adopt <species>  (' + LINE_IDS.join(', ') + ')');
+  if (pet.species === null) console.log('Still an egg — keep coding to hatch it (its species is random).');
   console.log(`achievements: ${pet.achievements.map((a) => a.id).join(', ') || 'none'}`);
   if (status) {
     console.log(`project: ${status.repo || status.cwd} | context ${status.contextUsedPct}% | $${status.sessionCostUsd}`);
@@ -19,16 +18,6 @@ function printStatus() {
 
 if (cmd === 'status') {
   printStatus();
-} else if (cmd === 'adopt') {
-  const species = rest[0];
-  if (!LINE_IDS.includes(species)) {
-    console.error(`unknown species: ${species}. choose one of: ${LINE_IDS.join(', ')}`);
-    process.exit(1);
-  }
-  const pet = loadPet();
-  pet.species = species;
-  savePet(pet);
-  console.log(`Adopted a ${species}! It will hatch as you code.`);
 } else if (cmd === 'rename') {
   const name = rest.join(' ').trim();
   if (!name) { console.error('usage: /pet rename <name>'); process.exit(1); }

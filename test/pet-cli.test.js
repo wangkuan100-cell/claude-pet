@@ -12,27 +12,19 @@ function pet(home, args, input, extraEnv = {}) {
   });
 }
 
-test('adopt sets species; status prints it', () => {
+test('a fresh pet is an unhatched egg', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
-  assert.equal(pet(home, ['adopt', 'dragon']).status, 0);
-  assert.equal(JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8')).species, 'dragon');
   const out = pet(home, ['status']).stdout;
-  assert.match(out, /dragon/);
+  assert.match(out, /egg/i);
   assert.match(out, /Lv\s*1/i);
 });
 
-test('adopt rejects unknown species', () => {
+test('milestone awards 300 xp and hatches the egg into a random species', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
-  const r = pet(home, ['adopt', 'unicorn']);
-  assert.notEqual(r.status, 0);
-  assert.match(r.stderr, /unknown species/i);
-});
-
-test('milestone awards 300 xp', () => {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
-  pet(home, ['adopt', 'phoenix']);
   pet(home, ['milestone', 'shipped v1']);
-  assert.equal(JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8')).xp, 300);
+  const saved = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(saved.xp, 300);
+  assert.ok(saved.species); // hatched into some line, chosen at random
 });
 
 test('start launches via the configured electron path; stop clears the pidfile', () => {

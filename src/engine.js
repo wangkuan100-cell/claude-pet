@@ -1,5 +1,6 @@
 import { xpForEvent, applyStreakMultiplier } from './xp.js';
 import { levelForXp, stageForLevel } from './levels.js';
+import { pickSpecies } from './lines.js';
 import { moodAfterEvent, moodAfterFailure, moodAfterDecay } from './mood.js';
 import { unlockAchievements } from './achievements.js';
 import {
@@ -21,7 +22,7 @@ export function updateStreak(streak, now) {
   return { days, lastActiveDate: today };
 }
 
-export function applyEvent(pet, sessionAcc, event, now = new Date()) {
+export function applyEvent(pet, sessionAcc, event, now = new Date(), rng = Math.random) {
   const next = structuredClone(pet);
   const acc = { ...sessionAcc };
   const nowIso = now.toISOString();
@@ -74,9 +75,11 @@ export function applyEvent(pet, sessionAcc, event, now = new Date()) {
     if (moodKey) next.mood = moodAfterEvent(next.mood, moodKey);
   }
 
-  // Level + stage.
+  // Level + stage. The egg hatches into a RANDOM creature the first time it grows past level 1
+  // (the user never chooses); it stays a generic egg until then.
   next.level = levelForXp(next.xp);
-  next.stage = next.species === null && next.level < 2 ? 'egg' : stageForLevel(next.level);
+  if (next.species === null && next.level >= 2) next.species = pickSpecies(rng);
+  next.stage = next.species === null ? 'egg' : stageForLevel(next.level);
 
   // Achievements.
   const unlocked = unlockAchievements(next);

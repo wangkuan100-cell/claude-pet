@@ -77,11 +77,6 @@ async function createWindow() {
   decayTimer = setInterval(repaint, 60000);
 
   ipcMain.on('request-paint', repaint);
-  ipcMain.on('adopt', (_e, species) => {
-    const pet = stateApi.loadPet();
-    if (require('./placeholders-allowlist.cjs').includes(species)) { pet.species = species; stateApi.savePet(pet); }
-    repaint();
-  });
   ipcMain.on('set-interactive', (_e, on) => {
     if (win && !win.isDestroyed()) win.setIgnoreMouseEvents(!on, { forward: true });
   });

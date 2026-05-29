@@ -25,7 +25,7 @@ test('currentExpression reflects mood, and failure overrides it', () => {
   assert.equal(currentExpression(failing, NOW), 'worried');
 });
 
-test('spriteKey is line/form (no expression segment); egg before adoption', () => {
+test('spriteKey is line/form (no expression segment); egg before hatching', () => {
   assert.equal(spriteKey(pet({ species: null, stage: 'egg' })), 'egg');
   assert.equal(spriteKey(pet({ species: 'phoenix', stage: 'legendary' })), 'phoenix/legendary');
 });
@@ -41,11 +41,11 @@ test('bubbleFor picks the highest-priority alert', () => {
   assert.equal(bubbleFor(null), null);
 });
 
-test('buildPaintData adopt mode lists the six evolution lines', () => {
-  const data = buildPaintData(pet({ species: null, stage: 'egg' }), null, NOW);
-  assert.equal(data.mode, 'adopt');
-  assert.equal(data.lines.length, 6);
-  assert.ok(data.lines.some((l) => l.id === 'phoenix' && l.emoji === '🔥' && l.name));
+test('buildPaintData renders the egg in pet mode before it hatches (no adoption screen)', () => {
+  const data = buildPaintData(pet({ species: null, stage: 'egg', name: null }), null, NOW);
+  assert.equal(data.mode, 'pet');
+  assert.equal(data.sprite.base, '🥚');
+  assert.equal(data.panel.name, 'egg');
 });
 
 test('buildPaintData pet mode: sprite from line/form, mood as expression class', () => {

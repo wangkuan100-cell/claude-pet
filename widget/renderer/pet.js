@@ -5,15 +5,8 @@
   let clickTimer = null;
 
   function paint(data) {
-    const adopt = $('adopt'), pet = $('pet');
-    if (!data || data.mode === 'adopt') {
-      adopt.classList.remove('hidden');
-      pet.classList.add('hidden');
-      renderSpecies((data && data.lines) || []);
-      ensureParticles(false);
-      return;
-    }
-    adopt.classList.add('hidden');
+    const pet = $('pet');
+    if (!data) { ensureParticles(false); return; }
     pet.classList.remove('hidden');
 
     const img = $('sprite-img'), base = $('sprite-base');
@@ -92,19 +85,6 @@
     if (!on && particleTimer) { clearInterval(particleTimer); particleTimer = null; const l = $('particles'); if (l) l.innerHTML = ''; }
   }
 
-  function renderSpecies(list) {
-    const grid = $('species-grid');
-    if (grid.childElementCount) return;
-    for (const line of list) {
-      const b = document.createElement('button');
-      b.className = 'species-btn';
-      b.textContent = line.emoji || '🐾';
-      b.title = line.name || line.id;
-      b.onclick = () => window.api && window.api.adopt(line.id);
-      grid.appendChild(b);
-    }
-  }
-
   function togglePanel() {
     panelOpen = !panelOpen;
     $('panel').classList.toggle('hidden', !panelOpen);
@@ -168,7 +148,7 @@
   // Capture the mouse only while the pointer is over real UI; otherwise clicks pass through.
   (function wireInteractive() {
     const set = (on) => window.api && window.api.setInteractive(on);
-    for (const sel of ['#sprite', '#panel', '#adopt', '#bubble', '#toast']) {
+    for (const sel of ['#sprite', '#panel', '#bubble', '#toast']) {
       const el = document.querySelector(sel);
       if (!el) continue;
       el.addEventListener('mouseenter', () => set(true));

@@ -14,6 +14,20 @@ test('lines event adds xp and lifetime, never below floor mood', () => {
   assert.equal(sessionAcc.linesXp, 10);
 });
 
+test('a fresh egg stays an unhatched egg below level 2', () => {
+  const { pet } = applyEvent(defaultPet(T0.toISOString()), acc(), { type: 'lines', count: 10 }, T0, () => 0);
+  assert.equal(pet.species, null);
+  assert.equal(pet.stage, 'egg');
+});
+
+test('the egg hatches into a RANDOM species the first time it passes level 1', () => {
+  // milestone = 300 xp -> level 2 -> hatch; injected rng picks the first line deterministically
+  const { pet } = applyEvent(defaultPet(T0.toISOString()), acc(), { type: 'milestone' }, T0, () => 0);
+  assert.equal(pet.level, 2);
+  assert.equal(pet.species, 'phoenix'); // LINE_IDS[0]
+  assert.equal(pet.stage, 'hatchling');
+});
+
 test('feed raises mood by 8 (capped at 100), awards no xp', () => {
   const { pet } = applyEvent(defaultPet(T0.toISOString()), acc(), { type: 'feed' }, T0); // mood 80 -> 88
   assert.equal(pet.mood, 88);
