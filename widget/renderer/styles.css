@@ -61,6 +61,13 @@ html, body { background: transparent; overflow: hidden; user-select: none; }
 #app.evolving { animation: evoflash 1.2s ease-out; }
 @keyframes evoflash { 0% { filter: brightness(3) blur(2px); } 40% { filter: brightness(2); } 100% { filter: none; } }
 
+/* M8: eat (feed) chomp + floating hearts + walk (wander) waddle (defined last so they win over idle/mood) */
+#sprite-stage.eat { animation: chomp .32s ease 2; }
+@keyframes chomp { 0%,100% { transform: scale(1,1); } 50% { transform: scale(.9,1.1); } }
+.particle.heart { font-size: 18px; animation-duration: 1.4s; }
+#sprite-stage.walking { animation: waddle .45s ease-in-out infinite; }
+@keyframes waddle { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-4px) rotate(5deg); } }
+
 /* M6: living-pet idle animation — gentle float + pseudo-3D tilt (perspective is on #sprite) */
 #sprite-stage { display: inline-block; transform-style: preserve-3d; animation: idle 4s ease-in-out infinite; }
 @keyframes idle {

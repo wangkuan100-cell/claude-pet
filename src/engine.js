@@ -7,7 +7,7 @@ import {
   CONTEXT_WINDOW_TOKENS, CONTEXT_ALERT_PCT, GIT_DIRTY_ALERT, COMMIT_AGE_ALERT_MIN, REST_ALERT_MIN,
 } from './constants.js';
 
-const MOOD_EVENT = { commit: 'commit', feat: 'feat', milestone: 'milestone', testPass: 'testPass', lines: 'activity', newFile: 'activity' };
+const MOOD_EVENT = { commit: 'commit', feat: 'feat', milestone: 'milestone', testPass: 'testPass', lines: 'activity', newFile: 'activity', feed: 'feed' };
 
 function hoursBetween(aIso, bDate) {
   return Math.max(0, (bDate.getTime() - new Date(aIso).getTime()) / 3600000);

@@ -13,4 +13,8 @@ contextBridge.exposeInMainWorld('api', {
   dragStart: (p) => ipcRenderer.send('drag-start', p),
   dragMove: (p) => ipcRenderer.send('drag-move', p),
   dragEnd: () => ipcRenderer.send('drag-end'),
+  // double-click feeding
+  feed: () => ipcRenderer.send('feed'),
+  // main asks the renderer to play a walk animation while wandering (dir: -1/1, 0 = stop)
+  onWalk: (cb) => ipcRenderer.on('walk', (_e, dir) => cb(dir)),
 });

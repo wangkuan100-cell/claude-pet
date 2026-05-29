@@ -2,6 +2,7 @@
   const $ = (id) => document.getElementById(id);
   let panelOpen = false;
   let drag = null;
+  let clickTimer = null;
 
   function paint(data) {
     const adopt = $('adopt'), pet = $('pet');
@@ -129,8 +130,34 @@
     const wasDrag = drag.moved;
     drag = null;
     if (window.api) window.api.dragEnd();
-    if (!wasDrag) togglePanel();
+    if (!wasDrag) handleClick();
   });
+
+  // Single click → panel (after a short delay); a 2nd click within 280ms → double-click → feed.
+  function handleClick() {
+    if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; feed(); }
+    else { clickTimer = setTimeout(() => { clickTimer = null; togglePanel(); }, 280); }
+  }
+  function feed() {
+    if (window.api) window.api.feed();
+    const st = $('sprite-stage');
+    if (st) { st.classList.remove('eat'); void st.offsetWidth; st.classList.add('eat'); setTimeout(() => st.classList.remove('eat'), 640); }
+    for (let i = 0; i < 3; i++) spawnHeart();
+  }
+  function spawnHeart() {
+    const layer = $('particles');
+    if (!layer) return;
+    const h = document.createElement('div');
+    h.className = 'particle heart';
+    h.textContent = Math.random() < 0.5 ? '❤️' : '😋';
+    h.style.left = (30 + Math.random() * 40) + '%';
+    layer.appendChild(h);
+    setTimeout(() => h.remove(), 1600);
+  }
+  function walk(dir) {
+    const st = $('sprite-stage');
+    if (st) st.classList.toggle('walking', dir !== 0);
+  }
 
   // Capture the mouse only while the pointer is over real UI; otherwise clicks pass through.
   (function wireInteractive() {
@@ -146,6 +173,7 @@
   if (window.api) {
     window.api.onPaint(paint);
     window.api.requestPaint();
+    if (window.api.onWalk) window.api.onWalk(walk);
   } else if (window.__FIXTURE__) {
     paint(window.__FIXTURE__);
   }

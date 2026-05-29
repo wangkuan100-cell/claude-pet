@@ -6,15 +6,21 @@ let logic = null;       // dynamically-imported ESM modules
 let stateSource = null;
 let spriteSource = null;
 let winPos = null;
+let engine = null;
+let wander = null;
 let dragOrigin = null;
 let stopWatch = null;
 let decayTimer = null;
+let wanderTimer = null;
+let lastFeed = 0;
 
 async function loadModules() {
   logic = await import('./render-logic.js');
   stateSource = await import('./state-source.js');
   spriteSource = await import('./sprite-source.js');
   winPos = await import('./window-pos.js');
+  engine = await import('../src/engine.js');
+  wander = await import('./wander.js');
   return import('../src/state.js');
 }
 
@@ -75,7 +81,41 @@ async function createWindow() {
     win.setPosition(Math.round(dragOrigin.pos[0] + p.sx - dragOrigin.sx), Math.round(dragOrigin.pos[1] + p.sy - dragOrigin.sy));
   });
   ipcMain.on('drag-end', () => { if (win && !win.isDestroyed() && winPos) winPos.savePos(win.getPosition()); dragOrigin = null; });
+
+  // Double-click feeding (light cooldown so it can't be spammed).
+  ipcMain.on('feed', () => {
+    const t = Date.now();
+    if (t - lastFeed < 3000) return;
+    lastFeed = t;
+    const pet = stateApi.loadPet();
+    const { pet: updated } = engine.applyEvent(pet, { linesXp: 0, testXp: 0 }, { type: 'feed' }, new Date());
+    stateApi.savePet(updated);
+    repaint();
+  });
+
+  startWander();
+}
+
+// Opt-in (CLAUDE_PET_WANDER=1): every ~40s the pet strolls to a new spot on the bottom edge.
+function startWander() {
+  if (process.env.CLAUDE_PET_WANDER !== '1') return;
+  wanderTimer = setInterval(() => {
+    if (!win || win.isDestroyed() || dragOrigin) return; // paused while dragging
+    const wa = screen.getPrimaryDisplay().workAreaSize;
+    const [w, h] = win.getSize();
+    const from = win.getPosition();
+    const to = wander.pickWanderTarget(wa, { width: w, height: h });
+    const path = wander.glidePath(from, [to.x, to.y], 30);
+    const send = (m) => { if (win && !win.isDestroyed()) win.webContents.send('walk', m); };
+    send(to.x >= from[0] ? 1 : -1);
+    let i = 0;
+    const step = setInterval(() => {
+      if (!win || win.isDestroyed() || dragOrigin) { clearInterval(step); send(0); return; }
+      win.setPosition(path[i][0], path[i][1]);
+      if (++i >= path.length) { clearInterval(step); if (winPos) winPos.savePos(win.getPosition()); send(0); }
+    }, 50);
+  }, 40000);
 }
 
 app.whenReady().then(createWindow);
-app.on('window-all-closed', () => { clearInterval(decayTimer); if (stopWatch) stopWatch(); app.quit(); });
+app.on('window-all-closed', () => { clearInterval(decayTimer); clearInterval(wanderTimer); if (stopWatch) stopWatch(); app.quit(); });

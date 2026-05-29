@@ -14,6 +14,14 @@ test('lines event adds xp and lifetime, never below floor mood', () => {
   assert.equal(sessionAcc.linesXp, 10);
 });
 
+test('feed raises mood by 8 (capped at 100), awards no xp', () => {
+  const { pet } = applyEvent(defaultPet(T0.toISOString()), acc(), { type: 'feed' }, T0); // mood 80 -> 88
+  assert.equal(pet.mood, 88);
+  assert.equal(pet.xp, 0);
+  const happy = applyEvent({ ...defaultPet(T0.toISOString()), mood: 96 }, acc(), { type: 'feed' }, T0);
+  assert.equal(happy.pet.mood, 100); // capped
+});
+
 test('per-session line XP cap is enforced across events', () => {
   let pet = defaultPet(T0.toISOString());
   let sessionAcc = acc();
