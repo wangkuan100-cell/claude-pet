@@ -108,6 +108,14 @@ Set `CLAUDE_PET_AUTOLAUNCH=1` to open the widget automatically at session start.
 - It **wanders** along the bottom edge on its own every ~40s (toggle it from the right-click menu; `CLAUDE_PET_WANDER=0` starts it off).
 - The window is **click-through** everywhere except the pet, so it never blocks what's behind it.
 
+### Appearance (Live2D / 3D / 2D)
+
+The widget tries three renderers in order and uses the first that works:
+
+1. **Live2D (default)** — a polished, expressive Live2D character that blinks, breathes, and follows your cursor. Its runtime (Cubism Core), PIXI, the `pixi-live2d-display` plugin, and a free sample model are loaded from their official CDNs on first run — so this mode needs internet and shows a **pre-made character** (not the creature lines). Cubism Core is proprietary and intentionally **not bundled**; set `window.__LIVE2D_MODEL__` to point at a different `*.model3.json` if you have one.
+2. **3D** — a three.js scene that stages the creature sprite with depth, a soft shadow, and motion (used if Live2D can't load).
+3. **2D** — the plain sprite (used if WebGL is unavailable).
+
 ## The growth model
 
 ### XP

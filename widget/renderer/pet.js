@@ -4,13 +4,19 @@
   let drag = null;
   let clickTimer = null;
   let use3D = false;
+  let useLive2D = false;
+  let lastData = null;
 
   function paint(data) {
     const pet = $('pet');
     if (!data) { ensureParticles(false); return; }
     pet.classList.remove('hidden');
+    lastData = data;
 
-    if (use3D) {
+    if (useLive2D) {
+      window.PetLive2D.show({ level: data.panel ? data.panel.level : 1 });
+      window.PetLive2D.setMood(data.expression || 'normal');
+    } else if (use3D) {
       const key = (data.sprite && data.sprite.key) || 'egg';
       const form = (key !== 'egg' && key.indexOf('/') > -1) ? key.split('/')[1] : 'egg';
       window.Pet3D.show({ imageSrc: data.sprite.imageSrc || null, emoji: data.sprite.base || '🥚', form });
@@ -50,8 +56,9 @@
 
     // Animate transitions main computed for us.
     const ev = data.events;
-    if (ev && ev.evolved) { if (use3D) window.Pet3D.react('evolve'); evolve(ev.newStage); }
-    else if (ev && ev.leveledUp) { if (use3D) window.Pet3D.react('levelup'); celebrate(`Lv ${ev.newLevel}!`); }
+    const react = (t) => { if (useLive2D) window.PetLive2D.react(t); else if (use3D) window.Pet3D.react(t); };
+    if (ev && ev.evolved) { react('evolve'); evolve(ev.newStage); }
+    else if (ev && ev.leveledUp) { react('levelup'); celebrate(`Lv ${ev.newLevel}!`); }
     else if (ev && ev.newAchievements && ev.newAchievements.length) toast(`🏆 ${ev.newAchievements[0]}`);
   }
 
@@ -127,6 +134,14 @@
     if (!wasDrag) handleClick();
   });
 
+  // Live2D eye/head tracking: look toward the cursor while it's over the pet.
+  document.addEventListener('mousemove', (e) => {
+    if (!useLive2D || !window.PetLive2D) return;
+    const l = $('live2d'); if (!l) return;
+    const r = l.getBoundingClientRect();
+    window.PetLive2D.focus(e.clientX - r.left, e.clientY - r.top);
+  });
+
   // Single click → panel (after a short delay); a 2nd click within 280ms → double-click → feed.
   function handleClick() {
     if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; feed(); }
@@ -134,7 +149,8 @@
   }
   function feed() {
     if (window.api) window.api.feed();
-    if (use3D && window.Pet3D) window.Pet3D.react('feed');
+    if (useLive2D && window.PetLive2D) window.PetLive2D.react('feed');
+    else if (use3D && window.Pet3D) window.Pet3D.react('feed');
     const st = $('sprite-stage');
     if (st) { st.classList.remove('eat'); void st.offsetWidth; st.classList.add('eat'); setTimeout(() => st.classList.remove('eat'), 640); }
     for (let i = 0; i < 3; i++) spawnHeart();
@@ -171,6 +187,20 @@
     if (window.Pet3D.ready) { use3D = true; const st = $('sprite-stage'); if (st) st.style.display = 'none'; }
     else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
   } else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
+
+  // Prefer Live2D when it loads (from CDN; needs internet). Until/unless it's ready the 3D/2D pet
+  // shows; on success we switch to it.
+  if (window.PetLive2D) {
+    window.PetLive2D.init($('live2d'), {
+      onReady: () => {
+        useLive2D = true;
+        const l = $('live2d'); if (l) l.style.display = 'block';
+        const c = $('stage3d'); if (c) c.style.display = 'none';
+        const st = $('sprite-stage'); if (st) st.style.display = 'none';
+        if (lastData) paint(lastData);
+      },
+    });
+  }
 
   if (window.api) {
     window.api.onPaint(paint);

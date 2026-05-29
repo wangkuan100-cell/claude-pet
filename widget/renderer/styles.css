@@ -7,6 +7,7 @@ html, body { background: transparent; overflow: hidden; user-select: none; }
 #sprite { position: relative; cursor: pointer; text-align: center; line-height: 1; perspective: 700px; }
 #sprite-base { font-size: 96px; display: inline-block; transition: transform .2s; }
 #stage3d { width: 220px; height: 220px; display: block; }
+#live2d { width: 230px; height: 300px; display: none; }
 
 #bubble {
   -webkit-app-region: no-drag;
