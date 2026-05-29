@@ -4,7 +4,7 @@ html, body { background: transparent; overflow: hidden; user-select: none; }
 #app { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
 
 .drag { -webkit-app-region: drag; }
-#sprite { position: relative; cursor: pointer; text-align: center; line-height: 1; }
+#sprite { position: relative; cursor: pointer; text-align: center; line-height: 1; perspective: 700px; }
 #sprite-base { font-size: 96px; display: inline-block; transition: transform .2s; }
 #sprite-expr { position: absolute; right: -6px; top: -6px; font-size: 34px; }
 
@@ -60,3 +60,25 @@ html, body { background: transparent; overflow: hidden; user-select: none; }
 /* evolution: a brief white flash over the whole window */
 #app.evolving { animation: evoflash 1.2s ease-out; }
 @keyframes evoflash { 0% { filter: brightness(3) blur(2px); } 40% { filter: brightness(2); } 100% { filter: none; } }
+
+/* M6: living-pet idle animation — gentle float + pseudo-3D tilt (perspective is on #sprite) */
+#sprite-stage { display: inline-block; transform-style: preserve-3d; animation: idle 4s ease-in-out infinite; }
+@keyframes idle {
+  0%,100% { transform: translateY(0)    rotateY(-7deg) rotateX(2deg); }
+  50%     { transform: translateY(-9px) rotateY(7deg)  rotateX(-2deg); }
+}
+/* mood tunes the idle tempo (class set on #sprite-stage) */
+#sprite-stage.mood-flow    { animation-duration: 2.2s; }
+#sprite-stage.mood-happy   { animation-duration: 3.2s; }
+#sprite-stage.mood-normal  { animation-duration: 4s; }
+#sprite-stage.mood-sleepy  { animation-duration: 7s; }
+#sprite-stage.mood-bored   { animation-duration: 9s; }
+#sprite-stage.mood-worried { animation-duration: 6s; }
+/* click squash (defined after mood so it wins while present) */
+#sprite-stage.pop { animation: pop-squash .3s ease; }
+@keyframes pop-squash { 0% { transform: scale(1,1); } 40% { transform: scale(1.12,.86); } 100% { transform: scale(1,1); } }
+
+/* ambient particles drifting up around the pet */
+#particles { position: absolute; inset: -10px 0 0 0; pointer-events: none; }
+.particle { position: absolute; bottom: 18%; font-size: 13px; opacity: 0; animation: rise 2.2s ease-out forwards; }
+@keyframes rise { 0% { transform: translateY(0) scale(.5); opacity: 0; } 25% { opacity: .9; } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }

@@ -8,6 +8,7 @@
       adopt.classList.remove('hidden');
       pet.classList.add('hidden');
       renderSpecies((data && data.lines) || []);
+      ensureParticles(false);
       return;
     }
     adopt.classList.add('hidden');
@@ -23,6 +24,8 @@
     }
     $('sprite-expr').textContent = data.sprite.expr || '';
     $('sprite').classList.toggle('worried', data.expression === 'worried');
+    $('sprite-stage').className = 'mood-' + (data.expression || 'normal');
+    ensureParticles(true);
 
     const bubble = $('bubble');
     if (data.bubble) {
@@ -72,6 +75,23 @@
     setTimeout(() => { c.textContent = '🎉'; }, 1500);
   }
 
+  let particleTimer = null;
+  function spawnParticle() {
+    const layer = $('particles');
+    if (!layer) return;
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = Math.random() < 0.5 ? '✨' : '·';
+    p.style.left = (15 + Math.random() * 70) + '%';
+    p.style.animationDuration = (1.8 + Math.random() * 1.2) + 's';
+    layer.appendChild(p);
+    setTimeout(() => p.remove(), 3200);
+  }
+  function ensureParticles(on) {
+    if (on && !particleTimer) particleTimer = setInterval(spawnParticle, 850);
+    if (!on && particleTimer) { clearInterval(particleTimer); particleTimer = null; const l = $('particles'); if (l) l.innerHTML = ''; }
+  }
+
   function renderSpecies(list) {
     const grid = $('species-grid');
     if (grid.childElementCount) return;
@@ -88,6 +108,8 @@
   $('sprite').addEventListener('click', () => {
     panelOpen = !panelOpen;
     $('panel').classList.toggle('hidden', !panelOpen);
+    const st = $('sprite-stage');
+    if (st) { st.classList.add('pop'); setTimeout(() => st.classList.remove('pop'), 320); }
   });
 
   // Capture the mouse only while the pointer is over real UI; otherwise clicks pass through.
