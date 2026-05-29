@@ -1,18 +1,14 @@
-export const SPECIES = ['cat', 'dog', 'dragon', 'slime', 'bird', 'fox'];
+import { LINES, LINE_IDS, FORMS } from '../src/lines.js';
 
-const SPECIES_EMOJI = { cat: '🐱', dog: '🐶', dragon: '🐉', slime: '🟢', bird: '🐦', fox: '🦊' };
-const STAGE_SCALE = { egg: 0.7, hatchling: 0.85, child: 1.0, teen: 1.15, adult: 1.3 };
-const EXPRESSION_EMOJI = { flow: '🤩', happy: '😄', normal: '🙂', sleepy: '😴', bored: '🥱', worried: '😟' };
+const FORM_SCALE = { egg: 0.7, hatchling: 0.8, juvenile: 0.95, adolescent: 1.1, adult: 1.25, legendary: 1.4 };
 
 export function spritePlaceholder(spriteKey) {
-  if (spriteKey === 'egg') return { base: '🥚', scale: 0.7, expr: null };
-  const [species, stage, expr] = spriteKey.split('/');
-  const scale = STAGE_SCALE[stage] ?? (stage && stage.startsWith('evolved') ? 1.45 : 1.0);
-  return {
-    base: SPECIES_EMOJI[species] || '🐾',
-    scale,
-    expr: EXPRESSION_EMOJI[expr] || null,
-  };
+  if (!spriteKey || spriteKey === 'egg' || spriteKey.indexOf('/') === -1) {
+    return { base: '🥚', scale: 0.7, expr: null };
+  }
+  const [line, form] = spriteKey.split('/');
+  const base = LINES[line]?.forms?.[form]?.emoji || '🐾';
+  return { base, scale: FORM_SCALE[form] || 1.0, expr: null };
 }
 
-export { SPECIES_EMOJI, EXPRESSION_EMOJI };
+export { LINE_IDS, FORMS };

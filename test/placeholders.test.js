@@ -1,21 +1,24 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { spritePlaceholder, SPECIES } from '../widget/placeholders.js';
+import { spritePlaceholder, LINE_IDS } from '../widget/placeholders.js';
 
-test('SPECIES lists the adoptable starters', () => {
-  assert.deepEqual(SPECIES, ['cat', 'dog', 'dragon', 'slime', 'bird', 'fox']);
+test('LINE_IDS exposes the six adoptable evolution lines', () => {
+  assert.equal(LINE_IDS.length, 6);
+  assert.ok(LINE_IDS.includes('phoenix'));
 });
 
-test('egg sprite is a small egg with no expression overlay', () => {
+test('pre-adoption egg key returns the generic egg', () => {
   assert.deepEqual(spritePlaceholder('egg'), { base: '🥚', scale: 0.7, expr: null });
 });
 
-test('species sprite maps base emoji, stage scale, and expression overlay', () => {
-  assert.deepEqual(spritePlaceholder('dragon/child/flow'), { base: '🐉', scale: 1.0, expr: '🤩' });
-  assert.deepEqual(spritePlaceholder('cat/adult/sleepy'), { base: '🐱', scale: 1.3, expr: '😴' });
+test('spritePlaceholder returns the per-line/form emoji and a form-scaled size', () => {
+  assert.equal(spritePlaceholder('phoenix/legendary').base, '🔥');
+  assert.equal(spritePlaceholder('phoenix/egg').base, '🥚');
+  assert.equal(spritePlaceholder('dragon/legendary').base, '🐉');
+  assert.ok(spritePlaceholder('dragon/adult').scale >= 1.0);
+  assert.equal(spritePlaceholder('phoenix/legendary').scale, 1.4);
 });
 
-test('evolved stages scale up; unknown parts fall back gracefully', () => {
-  assert.equal(spritePlaceholder('fox/evolved2/happy').scale, 1.45);
-  assert.equal(spritePlaceholder('zebra/child/happy').base, '🐾');
+test('unknown line/form falls back to a paw print', () => {
+  assert.equal(spritePlaceholder('zebra/adult').base, '🐾');
 });
