@@ -103,7 +103,8 @@ Set `CLAUDE_PET_AUTOLAUNCH=1` to open the widget automatically at session start.
 - **Drag** the pet to move it anywhere — it remembers where you put it.
 - **Click** to open or close the stats panel (level, XP bar, mood, project, achievements).
 - **Double-click** to feed it a treat — a small mood boost, with floating hearts.
-- It **wanders** along the bottom edge on its own every ~40s (opt out with `CLAUDE_PET_WANDER=0`).
+- **Right-click** for a menu of toggles — wandering, reminder bubbles, always-on-top — plus quit. Your choices are remembered across restarts.
+- It **wanders** along the bottom edge on its own every ~40s (toggle it from the right-click menu; `CLAUDE_PET_WANDER=0` starts it off).
 - The window is **click-through** everywhere except the pet, so it never blocks what's behind it.
 
 ## The growth model
@@ -169,7 +170,7 @@ phoenix 凤凰 🔥 · dragon 龙王 🐉 · kitsune 九尾狐 ✨ · cerberus �
 | Variable | Default | Purpose |
 |---|---|---|
 | `CLAUDE_PET_HOME` | `~/.claude-pet` | State directory (handy for fixtures/demos) |
-| `CLAUDE_PET_WANDER` | on | Set to `0` to stop the pet wandering |
+| `CLAUDE_PET_WANDER` | on | Initial default for wandering (toggle it live from the right-click menu); set to `0` to start with it off |
 | `CLAUDE_PET_AUTOLAUNCH` | off | Set to `1` to open the widget at session start |
 | `CLAUDE_PET_CONTEXT_WINDOW` | `200000` | Token budget used to estimate context % |
 

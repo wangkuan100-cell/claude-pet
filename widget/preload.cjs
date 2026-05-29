@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('api', {
   dragEnd: () => ipcRenderer.send('drag-end'),
   // double-click feeding
   feed: () => ipcRenderer.send('feed'),
+  // right-click → main pops a native menu of feature toggles
+  contextMenu: () => ipcRenderer.send('context-menu'),
   // main asks the renderer to play a walk animation while wandering (dir: -1/1, 0 = stop)
   onWalk: (cb) => ipcRenderer.on('walk', (_e, dir) => cb(dir)),
 });

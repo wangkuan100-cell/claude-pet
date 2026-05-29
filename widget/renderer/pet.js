@@ -113,10 +113,18 @@
   }
 
   // Drag the pet to move the window; a press that doesn't move is a click → toggle the panel.
+  // Left button only — right-click is reserved for the context menu (below).
   $('sprite').addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
     drag = { sx: e.screenX, sy: e.screenY, moved: false };
     if (window.api) window.api.dragStart({ sx: e.screenX, sy: e.screenY });
     e.preventDefault();
+  });
+
+  // Right-click the pet → native feature-toggle menu (handled in main).
+  $('sprite').addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    if (window.api && window.api.contextMenu) window.api.contextMenu();
   });
   document.addEventListener('mousemove', (e) => {
     if (!drag) return;

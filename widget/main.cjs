@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, Menu } = require('electron');
 const path = require('node:path');
 
 let win = null;
@@ -13,6 +13,7 @@ let stopWatch = null;
 let decayTimer = null;
 let wanderTimer = null;
 let lastFeed = 0;
+let prefs = { wander: true, reminders: true, alwaysOnTop: true };
 
 async function loadModules() {
   logic = await import('./render-logic.js');
@@ -35,6 +36,9 @@ function repaint() {
     const assetsDir = path.join(__dirname, '..', 'assets');
     const url = spriteSource.assetUrlFor(assetsDir, `${pet.species}/${pet.stage}`);
     if (url) data.sprite.imageSrc = url;
+    // When reminders are toggled off, hide the nag bubbles (context/git/rest) but keep the
+    // supportive empathy bubble.
+    if (!prefs.reminders && data.bubble && data.bubble.kind !== 'empathy') data.bubble = null;
   } else {
     lastPanel = null;
   }
@@ -44,6 +48,13 @@ function repaint() {
 async function createWindow() {
   const stateApi = await loadModules();
 
+  const savedPrefs = winPos.loadPrefs();
+  prefs = {
+    wander: savedPrefs.wander ?? (process.env.CLAUDE_PET_WANDER !== '0'),
+    reminders: savedPrefs.reminders ?? true,
+    alwaysOnTop: savedPrefs.alwaysOnTop ?? true,
+  };
+
   const { width } = screen.getPrimaryDisplay().workAreaSize;
   const saved = winPos.loadPos();
   win = new BrowserWindow({
@@ -52,7 +63,7 @@ async function createWindow() {
     skipTaskbar: true, hasShadow: false,
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, sandbox: false },
   });
-  win.setAlwaysOnTop(true, 'screen-saver');
+  win.setAlwaysOnTop(!!prefs.alwaysOnTop, 'screen-saver');
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
@@ -93,13 +104,27 @@ async function createWindow() {
     repaint();
   });
 
-  startWander();
+  // Right-click the pet → a native menu of feature toggles (checkboxes) + quit.
+  ipcMain.on('context-menu', () => {
+    if (!win || win.isDestroyed()) return;
+    const menu = Menu.buildFromTemplate([
+      { label: '溜达', type: 'checkbox', checked: !!prefs.wander, click: () => toggle('wander') },
+      { label: '提醒气泡', type: 'checkbox', checked: !!prefs.reminders, click: () => toggle('reminders') },
+      { label: '窗口置顶', type: 'checkbox', checked: !!prefs.alwaysOnTop, click: () => toggle('alwaysOnTop') },
+      { type: 'separator' },
+      { label: '退出宠物', click: () => app.quit() },
+    ]);
+    menu.popup({ window: win });
+  });
+
+  if (prefs.wander) startWander();
 }
 
-// Default ON (opt out with CLAUDE_PET_WANDER=0): every ~40s the pet strolls to a new spot on
-// the bottom edge — at any stage, the egg included (there is no stage gate).
+// Every ~40s the pet strolls to a new spot on the bottom edge — at any stage, the egg included.
+// Toggled at runtime from the right-click menu (prefs.wander); CLAUDE_PET_WANDER=0 only sets the
+// initial default.
 function startWander() {
-  if (process.env.CLAUDE_PET_WANDER === '0') return;
+  if (wanderTimer) return;
   wanderTimer = setInterval(() => {
     if (!win || win.isDestroyed() || dragOrigin) return; // paused while dragging
     const wa = screen.getPrimaryDisplay().workAreaSize;
@@ -116,6 +141,21 @@ function startWander() {
       if (++i >= path.length) { clearInterval(step); if (winPos) winPos.savePos(win.getPosition()); send(0); }
     }, 50);
   }, 40000);
+}
+function stopWander() {
+  if (wanderTimer) { clearInterval(wanderTimer); wanderTimer = null; }
+}
+
+// Apply the current prefs to live window state; toggle() flips+persists one switch and re-applies.
+function applyPrefs() {
+  if (prefs.wander) startWander(); else stopWander();
+  if (win && !win.isDestroyed()) win.setAlwaysOnTop(!!prefs.alwaysOnTop, 'screen-saver');
+}
+function toggle(key) {
+  prefs[key] = !prefs[key];
+  if (winPos) winPos.savePrefs(prefs);
+  applyPrefs();
+  repaint();
 }
 
 app.whenReady().then(createWindow);
