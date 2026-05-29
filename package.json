@@ -1,9 +1,30 @@
 {
   "name": "claude-pet",
-  "version": "0.1.0",
-  "description": "A desktop pet that grows as you code with Claude Code (state engine).",
+  "version": "0.5.0",
+  "description": "A Claude Code plugin: a desktop pet that grows as you code — read-only state engine, Electron widget, reminders, and achievements.",
   "type": "module",
   "main": "widget/main.cjs",
+  "author": {
+    "name": "kuan"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/wangkuan100-cell/claude-pet#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangkuan100-cell/claude-pet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wangkuan100-cell/claude-pet/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "desktop-pet",
+    "virtual-pet",
+    "tamagotchi",
+    "electron",
+    "gamification"
+  ],
   "engines": {
     "node": ">=18"
   },
