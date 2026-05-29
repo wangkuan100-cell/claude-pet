@@ -30,7 +30,7 @@ test('adopt rejects unknown species', () => {
 
 test('milestone awards 300 xp', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
-  pet(home, ['adopt', 'cat']);
+  pet(home, ['adopt', 'phoenix']);
   pet(home, ['milestone', 'shipped v1']);
   assert.equal(JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8')).xp, 300);
 });

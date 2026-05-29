@@ -7,7 +7,7 @@
     if (!data || data.mode === 'adopt') {
       adopt.classList.remove('hidden');
       pet.classList.add('hidden');
-      renderSpecies((data && data.species) || []);
+      renderSpecies((data && data.lines) || []);
       return;
     }
     adopt.classList.add('hidden');
@@ -46,7 +46,8 @@
 
     // Animate transitions main computed for us.
     const ev = data.events;
-    if (ev && ev.leveledUp) celebrate(`Lv ${ev.newLevel}!`);
+    if (ev && ev.evolved) evolve(ev.newStage);
+    else if (ev && ev.leveledUp) celebrate(`Lv ${ev.newLevel}!`);
     else if (ev && ev.newAchievements && ev.newAchievements.length) toast(`🏆 ${ev.newAchievements[0]}`);
   }
 
@@ -63,16 +64,23 @@
     t.classList.remove('hidden', 'show'); void t.offsetWidth; t.classList.add('show');
   }
 
+  function evolve(stage) {
+    const c = $('celebrate'), app = $('app');
+    c.textContent = '✨'; c.classList.remove('hidden', 'show'); void c.offsetWidth; c.classList.add('show');
+    app.classList.remove('evolving'); void app.offsetWidth; app.classList.add('evolving');
+    toast(`进化! → ${stage}`);
+    setTimeout(() => { c.textContent = '🎉'; }, 1500);
+  }
+
   function renderSpecies(list) {
     const grid = $('species-grid');
     if (grid.childElementCount) return;
-    const EMOJI = { cat: '🐱', dog: '🐶', dragon: '🐉', slime: '🟢', bird: '🐦', fox: '🦊' };
-    for (const sp of list) {
+    for (const line of list) {
       const b = document.createElement('button');
       b.className = 'species-btn';
-      b.textContent = EMOJI[sp] || '🐾';
-      b.title = sp;
-      b.onclick = () => window.api && window.api.adopt(sp);
+      b.textContent = line.emoji || '🐾';
+      b.title = line.name || line.id;
+      b.onclick = () => window.api && window.api.adopt(line.id);
       grid.appendChild(b);
     }
   }

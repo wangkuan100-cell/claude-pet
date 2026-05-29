@@ -1,1 +1,1 @@
-module.exports = ['cat', 'dog', 'dragon', 'slime', 'bird', 'fox'];
+module.exports = ['phoenix', 'dragon', 'kitsune', 'cerberus', 'sphinx', 'golem'];
