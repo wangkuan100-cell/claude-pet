@@ -12,15 +12,20 @@
   const API = { ready: false };
   window.PetLive2D = API;
 
+  // We render Cubism 2 models (the animal sample lineup — cats, dog — only exists for Cubism 2;
+  // Cubism 4's free samples are humans only). The Cubism 2 runtime (live2d.min.js) is loaded
+  // first; the pixi-live2d-display cubism2 build then provides PIXI.live2d.Live2DModel.
   const CDN = {
-    core: 'https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js',
+    core: 'https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js',
     pixi: 'https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js',
-    plugin: 'https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/cubism4.min.js',
+    plugin: 'https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/cubism2.min.js',
   };
-  // A free Cubism-4 sample model from Live2D's official CubismWebSamples — "Hiyori", the cute
-  // schoolgirl mascot. Override via window.__LIVE2D_MODEL__ to point at any other .model3.json.
+  // Default pet: Hijiki, the black cat from Live2D's classic Cubism 2 free samples. Override via
+  // window.__LIVE2D_MODEL__ to point at any other .model.json (Cubism 2). Other cute options:
+  //   tororo (white cat): live2d-widget-model-tororo/assets/tororo.model.json
+  //   wanko  (puppy)    : live2d-widget-model-wanko/assets/wanko.model.json
   const MODEL_URL = (window.__LIVE2D_MODEL__) ||
-    'https://cdn.jsdelivr.net/gh/Live2D/CubismWebSamples@master/Samples/Resources/Hiyori/Hiyori.model3.json';
+    'https://cdn.jsdelivr.net/gh/xiazeyu/live2d-widget-models@master/packages/live2d-widget-model-hijiki/assets/hijiki.model.json';
 
   let canvas, app, model, baseScale = 1, level = 1;
 
@@ -46,7 +51,7 @@
     model.anchor.set(0.5, 1.0);
     model.scale.set(1);
     const fit = Math.min(W / model.width, H / model.height);
-    baseScale = fit * (window.__LIVE2D_FIT__ || 1.15);
+    baseScale = fit * (window.__LIVE2D_FIT__ || 1.6);
     applyScale();
     model.position.set(W / 2, H - 4);
   }
