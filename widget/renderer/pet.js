@@ -19,7 +19,12 @@
     } else if (use3D) {
       const key = (data.sprite && data.sprite.key) || 'egg';
       const form = (key !== 'egg' && key.indexOf('/') > -1) ? key.split('/')[1] : 'egg';
-      window.Pet3D.show({ imageSrc: data.sprite.imageSrc || null, emoji: data.sprite.base || '🥚', form });
+      window.Pet3D.show({
+        imageSrc: data.sprite.imageSrc || null,
+        imageSrcPose2: data.sprite.imageSrcPose2 || null,
+        emoji: data.sprite.base || '🥚',
+        form,
+      });
       window.Pet3D.setMood(data.expression || 'normal');
     } else {
       const img = $('sprite-img'), img2 = $('sprite-img2'), base = $('sprite-base');

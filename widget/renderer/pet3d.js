@@ -12,12 +12,14 @@
   const MOOD_TEMPO = { flow: 1.9, happy: 1.35, normal: 1.0, sleepy: 0.45, bored: 0.35, worried: 1.6 };
 
   let canvas, renderer, scene, camera, clock, texLoader;
-  let root, plane, shadow;
+  let root, plane, plane2, shadow;
   const state = {
     tempo: 1, worried: false, sleepy: false,
     action: null, actionT: 0, look: { x: 0, y: 0 }, scale: 1,
-    curUrl: null, curEmoji: null,
+    curUrl: null, curUrl2: null, curEmoji: null, hasPose2: false,
   };
+  // Cross-fade period for pose1 ↔ pose2 (seconds). Matches the 2D fallback CSS keyframes.
+  const POSE_PERIOD = 0.85;
 
   function emojiTexture(emoji) {
     const c = document.createElement('canvas'); c.width = c.height = 256;
@@ -31,21 +33,21 @@
     return t;
   }
 
-  function applyTexture(tex) {
-    if (!plane) return;
+  function applyTextureTo(mesh, tex) {
+    if (!mesh) return;
     tex.anisotropy = 4;
-    const old = plane.material.map;
-    plane.material.map = tex;
-    plane.material.needsUpdate = true;
+    const old = mesh.material.map;
+    mesh.material.map = tex;
+    mesh.material.needsUpdate = true;
     if (old && old !== tex) old.dispose();
   }
 
-  function loadUrl(url) {
+  function loadUrlInto(url, mesh) {
     texLoader.load(
       url,
-      (tex) => { tex.encoding = THREE.sRGBEncoding; applyTexture(tex); },
+      (tex) => { tex.encoding = THREE.sRGBEncoding; applyTextureTo(mesh, tex); },
       undefined,
-      () => applyTexture(emojiTexture(state.curEmoji || '🥚')), // load error → emoji
+      () => applyTextureTo(mesh, emojiTexture(state.curEmoji || '🥚')), // load error → emoji
     );
   }
 
@@ -78,6 +80,18 @@
     }
 
     shadow.scale.setScalar(sc * (1 + Math.sin(t * 1.7 * tempo) * 0.05));
+
+    // Pose1 ↔ pose2 cross-fade for wing/tail/core motion. When no pose2 is loaded the second
+    // plane is hidden, so plane1 stays fully visible and nothing flickers.
+    if (state.hasPose2) {
+      const phase = ((t % POSE_PERIOD) / POSE_PERIOD) * Math.PI * 2;
+      const a = 0.5 + 0.5 * Math.cos(phase); // 1 → 0 → 1 sine
+      plane.material.opacity = a;
+      plane2.material.opacity = 1 - a;
+    } else if (plane.material.opacity !== 1) {
+      plane.material.opacity = 1;
+    }
+
     renderer.render(scene, camera);
   }
 
@@ -94,11 +108,20 @@
     shadow = new THREE.Mesh(new THREE.CircleGeometry(0.6, 28), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.16 }));
     shadow.rotation.x = -Math.PI / 2; shadow.position.y = -1.12; scene.add(shadow);
     root = new THREE.Group(); scene.add(root);
+    const geo = new THREE.PlaneGeometry(2, 2);
     plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(2, 2),
+      geo,
       new THREE.MeshBasicMaterial({ map: emojiTexture('🥚'), transparent: true, alphaTest: 0.06, depthWrite: false }),
     );
     root.add(plane);
+    // Second plane for pose2 (wings flap / tails sway). Hidden until show() supplies imageSrcPose2.
+    plane2 = new THREE.Mesh(
+      geo,
+      new THREE.MeshBasicMaterial({ map: emojiTexture('🥚'), transparent: true, alphaTest: 0.06, depthWrite: false, opacity: 0 }),
+    );
+    plane2.position.z = 0.002; // tiny offset to enforce draw order (drawn after plane)
+    plane2.visible = false;
+    root.add(plane2);
     clock = new THREE.Clock();
     resize();
     window.addEventListener('resize', resize);
@@ -106,15 +129,22 @@
     loop();
   };
 
-  // o = { imageSrc (data URL or http), emoji (fallback glyph), form }
+  // o = { imageSrc (data URL or http), imageSrcPose2 (optional second frame), emoji, form }
   API.show = function (o) {
     o = o || {};
     state.scale = FORM_SCALE[o.form] || 1;
     if (o.imageSrc) {
-      if (o.imageSrc !== state.curUrl) { state.curUrl = o.imageSrc; state.curEmoji = o.emoji || null; if (API.ready) loadUrl(o.imageSrc); }
+      if (o.imageSrc !== state.curUrl) { state.curUrl = o.imageSrc; state.curEmoji = o.emoji || null; if (API.ready) loadUrlInto(o.imageSrc, plane); }
     } else {
       const em = o.emoji || '🥚';
-      if (em !== state.curEmoji || state.curUrl) { state.curEmoji = em; state.curUrl = null; if (API.ready) applyTexture(emojiTexture(em)); }
+      if (em !== state.curEmoji || state.curUrl) { state.curEmoji = em; state.curUrl = null; if (API.ready) applyTextureTo(plane, emojiTexture(em)); }
+    }
+    // Optional second pose: when present, load into plane2 and enable the cross-fade.
+    if (o.imageSrcPose2) {
+      if (o.imageSrcPose2 !== state.curUrl2) { state.curUrl2 = o.imageSrcPose2; if (API.ready) loadUrlInto(o.imageSrcPose2, plane2); }
+      state.hasPose2 = true; if (plane2) plane2.visible = true;
+    } else {
+      state.curUrl2 = null; state.hasPose2 = false; if (plane2) plane2.visible = false;
     }
   };
   API.setMood = function (expr) {
