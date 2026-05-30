@@ -1,6 +1,6 @@
 import { LINES, LINE_IDS, FORMS } from '../src/lines.js';
 
-export const STYLE = 'cute cartoon 3D render, Pixar-style, big expressive eyes, soft rounded shapes, glossy smooth shading, soft studio lighting, subtle ambient occlusion, vibrant saturated colors, adorable mascot, centered single character, plain transparent background, no text, no drop shadow';
+export const STYLE = 'chibi mascot, super-deformed Q-style proportions, oversized round head, tiny round body, large sparkling expressive eyes, gentle smile, soft pastel palette, glossy smooth cel-shading with soft rim light, kawaii anime mascot, centered single character, plain fully transparent background, no text, no drop shadow under the character';
 
 export function promptFor(line, form) {
   const art = LINES[line]?.forms?.[form]?.art || `${line} ${form}`;

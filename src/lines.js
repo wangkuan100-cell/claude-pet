@@ -1,73 +1,77 @@
 // Six evolution lines, each with six forms (egg -> ... -> legendary).
 // `art` is the creature description fed to the image model (joined with STYLE).
 // `emoji` is the placeholder shown until a generated PNG exists.
+//
+// All prompts are written in chibi Q-style: oversized round head, tiny body, big sparkling
+// eyes, soft pastel palette. Every form should feel cute — even the legendary one is a chibi
+// king, not a majestic adult — so the whole journey reads as a tiny mascot growing up.
 export const FORMS = ['egg', 'hatchling', 'juvenile', 'adolescent', 'adult', 'legendary'];
 
 export const LINES = {
   phoenix: {
     name: '凤凰', emoji: '🔥',
     forms: {
-      egg:        { emoji: '🥚', art: 'a warm orange speckled egg with tiny flame motifs' },
-      hatchling:  { emoji: '🐣', art: 'a tiny fluffy orange chick hatching, soft embers around it' },
-      juvenile:   { emoji: '🐤', art: 'a plump little chick with small glowing orange feathers' },
-      adolescent: { emoji: '🐦', art: 'a young firebird with growing fiery plumage and bright eyes' },
-      adult:      { emoji: '🦅', art: 'a majestic fire-hawk with blazing orange-gold wings' },
-      legendary:  { emoji: '🔥', art: 'a glorious phoenix wreathed in radiant golden flames with long tail feathers' },
+      egg:        { emoji: '🥚', art: 'a round warm-orange egg with cute tiny flame-shaped freckles on a glossy shell' },
+      hatchling:  { emoji: '🐣', art: 'a tiny chibi orange chick peeking out of a cracked egg, big head small body, sparkling round eyes, a few soft little flames floating around it' },
+      juvenile:   { emoji: '🐤', art: 'a chubby chibi orange birdie, oversized round head, fluffy little wing buds, a tiny flame tuft on top, big bright eyes' },
+      adolescent: { emoji: '🐦', art: 'a chibi young phoenix, soft orange-red plumage, small open wings, a little flame mohawk, head still bigger than the body, gentle smile' },
+      adult:      { emoji: '🦅', art: 'a chibi phoenix mascot, glossy gold-orange feathers, small fluffy spread wings, a short flame plume tail, round happy face' },
+      legendary:  { emoji: '🔥', art: 'a chibi legendary phoenix king, sparkling golden feathers, a fluffy flame halo behind the head, a tiny glowing gem on the forehead, still big-head-small-body kawaii proportions' },
     },
   },
   dragon: {
     name: '龙王', emoji: '🐉',
     forms: {
-      egg:        { emoji: '🥚', art: 'a green scaly egg with faint golden cracks' },
-      hatchling:  { emoji: '🥚', art: 'a tiny green baby dragon poking out of its cracked shell' },
-      juvenile:   { emoji: '🦎', art: 'a small round green dragon with stubby wings and big eyes' },
-      adolescent: { emoji: '🐲', art: 'a young dragon with growing horns and bigger wings' },
-      adult:      { emoji: '🐉', art: 'a strong adult dragon with full wings and curved horns' },
-      legendary:  { emoji: '🐉', art: 'a mighty dragon king with golden horns, glowing aura and huge wings' },
+      egg:        { emoji: '🥚', art: 'a round bright-green egg with a cute scale pattern and tiny gold cracks on a glossy shell' },
+      hatchling:  { emoji: '🥚', art: 'a chibi green baby dragon poking out of a cracked shell, oversized round head, tiny tail, sparkling round eyes' },
+      juvenile:   { emoji: '🦎', art: 'a chubby chibi green dragon, big round head, little stub wings, two tiny horns, round belly, soft glossy scales' },
+      adolescent: { emoji: '🐲', art: 'a chibi young dragon, jade-green scales, curvy little horns, small folded wings, big curious eyes' },
+      adult:      { emoji: '🐉', art: 'a chibi cute dragon mascot, soft green body, small golden horns, tiny spread wings, plump tail, glossy shading' },
+      legendary:  { emoji: '🐉', art: 'a chibi legendary dragon king, bright emerald scales, golden curly horns, a tiny glowing orb floating beside it, still Q-style big-head-small-body proportions' },
     },
   },
   kitsune: {
     name: '九尾狐', emoji: '✨',
     forms: {
-      egg:        { emoji: '🥚', art: 'a white egg with a soft pink swirl' },
-      hatchling:  { emoji: '🐾', art: 'a tiny white fox kit with one little tail and big eyes' },
-      juvenile:   { emoji: '🦊', art: 'a small fluffy fox with two tails' },
-      adolescent: { emoji: '🦊', art: 'a young mystical fox with three softly glowing tails' },
-      adult:      { emoji: '🦊', art: 'an elegant fox with several flowing glowing tails' },
-      legendary:  { emoji: '✨', art: 'a divine nine-tailed kitsune with shimmering golden tails and a glowing forehead mark' },
+      egg:        { emoji: '🥚', art: 'a round pearl-white egg with a soft pink swirl on a glossy shell' },
+      hatchling:  { emoji: '🐾', art: 'a chibi tiny white fox kit, oversized fluffy head, one little tail, big triangular ears with pink inside, sparkling round eyes' },
+      juvenile:   { emoji: '🦊', art: 'a chibi white fox, two fluffy tails, big triangular pink-lined ears, round chubby body, gentle smile' },
+      adolescent: { emoji: '🦊', art: 'a chibi mystical fox, three fluffy softly glowing tails, sparkling eyes, a tiny gem on the forehead' },
+      adult:      { emoji: '🦊', art: 'a chibi multi-tailed fox, five soft golden floating tails, kawaii head-to-body proportions, glittery sparkling eyes' },
+      legendary:  { emoji: '✨', art: 'a chibi legendary nine-tailed kitsune, nine fluffy golden tails fanning behind the head, a small red mark on the forehead, big head small body kawaii' },
     },
   },
   cerberus: {
     name: '地狱犬', emoji: '🐺',
     forms: {
-      egg:        { emoji: '🥚', art: 'a dark grey egg with a faint red glow' },
-      hatchling:  { emoji: '🐶', art: 'a tiny black puppy with big round eyes' },
-      juvenile:   { emoji: '🐕', art: 'a small black dog with a little glowing collar' },
-      adolescent: { emoji: '🐕', art: 'a young muscular hound with faint ember eyes' },
-      adult:      { emoji: '🐺', art: 'a powerful black wolf-dog with glowing red eyes' },
-      legendary:  { emoji: '🐺', art: 'a cute-but-fierce three-headed hellhound with ember-glowing maws' },
+      egg:        { emoji: '🥚', art: 'a round dark-purple egg with tiny cute paw-print patterns on a glossy shell' },
+      hatchling:  { emoji: '🐶', art: 'a chibi tiny black puppy, oversized round head, big shiny round eyes, tiny ears up, plump body' },
+      juvenile:   { emoji: '🐕', art: 'a chibi small black puppy, chubby body, a simple round collar, big round eyes, friendly face' },
+      adolescent: { emoji: '🐕', art: 'a chibi black puppy with two tiny extra head-buds just emerging on top of its head, round and plump, bright happy eyes' },
+      adult:      { emoji: '🐺', art: 'a chibi three-headed puppy, three tiny round dog heads side by side, plump body, all heads cute and friendly, not scary' },
+      legendary:  { emoji: '🐺', art: 'a chibi legendary three-headed pup king, three round happy puppy heads, each wearing a tiny gold chain, soft little mist puffs at the paws, still Q-style proportions' },
     },
   },
   sphinx: {
     name: '狮身兽', emoji: '🦁',
     forms: {
-      egg:        { emoji: '🥚', art: 'a sandy egg with a small gold marking' },
-      hatchling:  { emoji: '🐱', art: 'a tiny sandy kitten with big curious eyes' },
-      juvenile:   { emoji: '🐱', art: 'a small cat with faint golden markings' },
-      adolescent: { emoji: '🐈', art: 'a young cat with tiny feathered wing-buds' },
-      adult:      { emoji: '🦁', art: 'a regal winged cat with a small mane and gold jewelry' },
-      legendary:  { emoji: '🦁', art: 'a majestic winged sphinx-cat with a flowing mane and golden headdress' },
+      egg:        { emoji: '🥚', art: 'a round sandy-gold egg with cute tiny wing-shaped marks on a glossy shell' },
+      hatchling:  { emoji: '🐱', art: 'a chibi tiny sandy kitten, oversized round head, big curious eyes, plump body, friendly face' },
+      juvenile:   { emoji: '🐱', art: 'a chibi small cat with faint golden tabby markings, chubby round belly, big round ears, gentle smile' },
+      adolescent: { emoji: '🐈', art: 'a chibi small cat with tiny fluffy wing-buds sprouting on its back, a thin golden collar, big eyes' },
+      adult:      { emoji: '🦁', art: 'a chibi baby sphinx, round head round body, a pair of small spread feathered wings, a tiny gold tiara' },
+      legendary:  { emoji: '🦁', art: 'a chibi legendary sphinx mascot, lifted tail, tiny spread golden wings, a miniature crown on its head, plump and cute not majestic' },
     },
   },
   golem: {
     name: '魔像王', emoji: '💎',
     forms: {
-      egg:        { emoji: '🥚', art: 'a translucent green jelly egg' },
-      hatchling:  { emoji: '🟢', art: 'a tiny glossy green slime droplet with sparkly eyes' },
-      juvenile:   { emoji: '🟢', art: 'a round bouncy green slime with a happy face' },
-      adolescent: { emoji: '🟩', art: 'a bigger green slime with small crystal shards forming inside' },
-      adult:      { emoji: '💠', art: 'a large crystalline slime with a glowing gem core' },
-      legendary:  { emoji: '💎', art: 'a towering crystal golem-king of gemstone slime with a glowing crown core' },
+      egg:        { emoji: '🥚', art: 'a round translucent pale-blue jelly egg with cute tiny crystal shards floating inside' },
+      hatchling:  { emoji: '🟢', art: 'a chibi tiny droplet slime, round translucent blue-green body, sparkling round eyes, glossy surface' },
+      juvenile:   { emoji: '🟢', art: 'a chibi chubby slime, happy round face, a tiny single crystal sprouting on top of its head, glossy translucent body' },
+      adolescent: { emoji: '🟩', art: 'a chibi crystal slime, a few small gems softly floating inside its translucent body, round and bouncy shape' },
+      adult:      { emoji: '💠', art: 'a chibi crystal spirit, soft jade-blue jelly body, a big single crystal on top of its head, tiny round arms, sparkling eyes' },
+      legendary:  { emoji: '💎', art: 'a chibi legendary crystal spirit king, a glowing gem core inside the translucent body, a small crystal crown on the head, still Q-style big-head-small-body kawaii' },
     },
   },
 };

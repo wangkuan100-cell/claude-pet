@@ -6,8 +6,8 @@ import path from 'node:path';
 import { promptFor, spriteMatrix, outputPath, STYLE } from '../art/prompts.js';
 import { generateAll } from '../art/generate.mjs';
 
-test('STYLE is cartoon 3D and promptFor includes the line form art + style', () => {
-  assert.match(STYLE, /cartoon 3D/i);
+test('STYLE is chibi/kawaii and promptFor includes the line form art + style', () => {
+  assert.match(STYLE, /chibi|kawaii/i);
   const p = promptFor('phoenix', 'legendary');
   assert.match(p, /phoenix/i);
   assert.match(p, /transparent background/i);
