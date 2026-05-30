@@ -9,12 +9,16 @@
   if (!THREE) return; // graceful fallback: pet.js keeps the 2D sprite
 
   const FORM_SCALE = { egg: 0.82, hatchling: 0.9, juvenile: 1.0, adolescent: 1.12, adult: 1.24, legendary: 1.4 };
-  const MOOD_TEMPO = { flow: 1.9, happy: 1.35, normal: 1.0, sleepy: 0.45, bored: 0.35, worried: 1.6 };
+  // tempo = how FAST things move; bob = how MUCH the body bobs; yaw = how MUCH it swivels
+  const MOOD_TEMPO = { flow: 1.9,  happy: 1.35, normal: 1.0,  sleepy: 0.45, bored: 0.35, worried: 1.6 };
+  const MOOD_BOB   = { flow: 0.10, happy: 0.08, normal: 0.06, sleepy: 0.04, bored: 0.025, worried: 0.05 };
+  const MOOD_YAW   = { flow: 0.18, happy: 0.15, normal: 0.13, sleepy: 0.06, bored: 0.04,  worried: 0.10 };
 
   let canvas, renderer, scene, camera, clock, texLoader;
   let root, plane, plane2, shadow;
   const state = {
-    tempo: 1, worried: false, sleepy: false,
+    tempo: 1, bobAmp: 0.06, yawAmp: 0.13,
+    worried: false, sleepy: false,
     action: null, actionT: 0, look: { x: 0, y: 0 }, scale: 1,
     curUrl: null, curUrl2: null, curEmoji: null, hasPose2: false,
   };
@@ -63,11 +67,11 @@
     const dt = clock.getDelta(), t = clock.getElapsedTime(), tempo = state.tempo, sc = state.scale;
 
     root.position.x = 0;
-    root.position.y = Math.sin(t * 1.7 * tempo) * 0.06;
+    root.position.y = Math.sin(t * 1.7 * tempo) * state.bobAmp;
     root.scale.setScalar(sc * (1 + Math.sin(t * 1.7 * tempo) * 0.03)); // gentle breathing
 
     // facing: small idle yaw + cursor lean; worried = nervous shake; sleepy = droopy tilt
-    const idleYaw = Math.sin(t * 0.8 * tempo) * 0.13;
+    const idleYaw = Math.sin(t * 0.8 * tempo) * state.yawAmp;
     root.rotation.y = (state.worried ? Math.sin(t * 7) * 0.12 : idleYaw) + state.look.x * 0.4;
     root.rotation.x = (state.sleepy ? 0.12 : 0) - state.look.y * 0.25;
     root.rotation.z = state.sleepy ? 0.14 : 0;
@@ -81,10 +85,11 @@
 
     shadow.scale.setScalar(sc * (1 + Math.sin(t * 1.7 * tempo) * 0.05));
 
-    // Pose1 ↔ pose2 cross-fade for wing/tail/core motion. When no pose2 is loaded the second
-    // plane is hidden, so plane1 stays fully visible and nothing flickers.
+    // Pose1 ↔ pose2 cross-fade for wing/tail/core motion. Cycle speed is mood-driven via tempo
+    // (flow & worried flap fast, sleepy & bored flap slow, matching the idle bob tempo). When no
+    // pose2 is loaded the second plane is hidden, so plane1 stays fully visible and nothing flickers.
     if (state.hasPose2) {
-      const phase = ((t % POSE_PERIOD) / POSE_PERIOD) * Math.PI * 2;
+      const phase = (t / POSE_PERIOD) * tempo * Math.PI * 2;
       const a = 0.5 + 0.5 * Math.cos(phase); // 1 → 0 → 1 sine
       plane.material.opacity = a;
       plane2.material.opacity = 1 - a;
@@ -148,9 +153,11 @@
     }
   };
   API.setMood = function (expr) {
-    state.tempo = MOOD_TEMPO[expr] || 1;
+    state.tempo  = MOOD_TEMPO[expr] || 1;
+    state.bobAmp = MOOD_BOB[expr]   || 0.06;
+    state.yawAmp = MOOD_YAW[expr]   || 0.13;
     state.worried = expr === 'worried';
-    state.sleepy = expr === 'sleepy' || expr === 'bored';
+    state.sleepy  = expr === 'sleepy' || expr === 'bored';
   };
   API.playAction = function (name) { state.action = name; state.actionT = 0; };
   API.setLook = function (x, y) { state.look.x = Math.max(-1, Math.min(1, x)); state.look.y = Math.max(-1, Math.min(1, y)); };
