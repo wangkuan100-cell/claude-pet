@@ -19,3 +19,22 @@ export function glidePath(from, to, steps = 30) {
   }
   return path;
 }
+
+// Bouncing hop path from `from` to `to`. Horizontal travel is eased; vertical traces `hops`
+// parabolic arcs (sin curves), each peaking `peakHeight` pixels above the baseline. The pet
+// physically hops across the screen instead of sliding.
+export function hopPath(from, to, hops = 5, peakHeight = 26, stepsPerHop = 9) {
+  const h = Math.max(1, hops);
+  const n = h * Math.max(2, stepsPerHop);
+  const path = [];
+  for (let i = 1; i <= n; i++) {
+    const t = i / n;
+    const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const baseX = Math.round(from[0] + (to[0] - from[0]) * e);
+    const baseY = Math.round(from[1] + (to[1] - from[1]) * e);
+    const hopT = (t * h) % 1; // 0..1 within the current hop
+    const yArc = -peakHeight * Math.sin(hopT * Math.PI); // negative Y = up on screen
+    path.push([baseX, Math.round(baseY + yArc)]);
+  }
+  return path;
+}

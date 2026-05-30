@@ -12,6 +12,7 @@ let dragOrigin = null;
 let stopWatch = null;
 let decayTimer = null;
 let wanderTimer = null;
+let idleHopTimer = null;
 let lastFeed = 0;
 let prefs = { wander: true, reminders: true, alwaysOnTop: true };
 
@@ -35,8 +36,9 @@ function repaint() {
     lastPanel = data.panel;
     const assetsDir = path.join(__dirname, '..', 'assets');
     // data URL (not file://) so the 3D renderer can upload it as a WebGL texture; <img> in the
-    // 2D fallback accepts it too.
-    const url = spriteSource.assetDataUrl(assetsDir, `${pet.species}/${pet.stage}`);
+    // 2D fallback accepts it too. Use the spriteKey from buildPaintData — it's 'egg' pre-hatch
+    // (resolving to the generic egg.png) or 'line/form' after hatching.
+    const url = spriteSource.assetDataUrl(assetsDir, data.sprite.key);
     if (url) data.sprite.imageSrc = url;
     // When reminders are toggled off, hide the nag bubbles (context/git/rest) but keep the
     // supportive empathy bubble.
@@ -114,12 +116,12 @@ async function createWindow() {
     menu.popup({ window: win });
   });
 
-  if (prefs.wander) startWander();
+  if (prefs.wander) { startWander(); startIdleHops(); }
 }
 
-// Every ~40s the pet strolls to a new spot on the bottom edge — at any stage, the egg included.
-// Toggled at runtime from the right-click menu (prefs.wander); CLAUDE_PET_WANDER=0 only sets the
-// initial default.
+// Every ~25s the pet bounces to a new spot on the bottom edge — physically hopping (parabolic
+// arcs) instead of sliding. Toggled at runtime from the right-click menu (prefs.wander);
+// CLAUDE_PET_WANDER=0 only sets the initial default.
 function startWander() {
   if (wanderTimer) return;
   wanderTimer = setInterval(() => {
@@ -128,7 +130,7 @@ function startWander() {
     const [w, h] = win.getSize();
     const from = win.getPosition();
     const to = wander.pickWanderTarget(wa, { width: w, height: h });
-    const path = wander.glidePath(from, [to.x, to.y], 30);
+    const path = wander.hopPath(from, [to.x, to.y], 5, 28, 9); // 5 hops, peak 28px
     const send = (m) => { if (win && !win.isDestroyed()) win.webContents.send('walk', m); };
     send(to.x >= from[0] ? 1 : -1);
     let i = 0;
@@ -136,16 +138,33 @@ function startWander() {
       if (!win || win.isDestroyed() || dragOrigin) { clearInterval(step); send(0); return; }
       win.setPosition(path[i][0], path[i][1]);
       if (++i >= path.length) { clearInterval(step); if (winPos) winPos.savePos(win.getPosition()); send(0); }
-    }, 50);
-  }, 40000);
+    }, 40);
+  }, 25000);
 }
 function stopWander() {
   if (wanderTimer) { clearInterval(wanderTimer); wanderTimer = null; }
 }
 
+// Random in-place hop: every 10–20s, jittered, the renderer plays a little squash-and-stretch
+// jump animation on the sprite. Skipped while dragging.
+function startIdleHops() {
+  if (idleHopTimer) return;
+  const schedule = () => {
+    const ms = 10000 + Math.random() * 10000;
+    idleHopTimer = setTimeout(() => {
+      if (win && !win.isDestroyed() && !dragOrigin) win.webContents.send('hop');
+      schedule();
+    }, ms);
+  };
+  schedule();
+}
+function stopIdleHops() {
+  if (idleHopTimer) { clearTimeout(idleHopTimer); idleHopTimer = null; }
+}
+
 // Apply the current prefs to live window state; toggle() flips+persists one switch and re-applies.
 function applyPrefs() {
-  if (prefs.wander) startWander(); else stopWander();
+  if (prefs.wander) { startWander(); startIdleHops(); } else { stopWander(); stopIdleHops(); }
   if (win && !win.isDestroyed()) win.setAlwaysOnTop(!!prefs.alwaysOnTop, 'screen-saver');
 }
 function toggle(key) {
@@ -156,4 +175,4 @@ function toggle(key) {
 }
 
 app.whenReady().then(createWindow);
-app.on('window-all-closed', () => { clearInterval(decayTimer); clearInterval(wanderTimer); if (stopWatch) stopWatch(); app.quit(); });
+app.on('window-all-closed', () => { clearInterval(decayTimer); clearInterval(wanderTimer); clearTimeout(idleHopTimer); if (stopWatch) stopWatch(); app.quit(); });

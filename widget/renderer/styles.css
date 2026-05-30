@@ -81,5 +81,17 @@ html, body { background: transparent; overflow: hidden; user-select: none; }
 #sprite-stage.eat { animation: chomp .32s ease 2; }
 @keyframes chomp { 0%,100% { transform: scale(1,1); } 50% { transform: scale(.9,1.1); } }
 .particle.heart { font-size: 18px; animation-duration: 1.4s; }
-#sprite-stage.walking { animation: waddle .45s ease-in-out infinite; }
-@keyframes waddle { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-4px) rotate(5deg); } }
+#sprite-stage.walking { animation: bouncewalk .38s ease-in-out infinite; }
+@keyframes bouncewalk {
+  0%,100% { transform: translateY(0)    rotate(-4deg) scale(1, 1); }
+  50%     { transform: translateY(-9px) rotate(4deg)  scale(.98, 1.02); }
+}
+/* Random in-place hop (main fires every 10–20s; renderer adds the class for ~600ms). */
+#sprite-stage.hopping { animation: hop .55s cubic-bezier(.5,1.4,.3,1) 1; }
+@keyframes hop {
+  0%   { transform: translateY(0)    scale(1, 1); }
+  20%  { transform: translateY(2px)  scale(1.1, .9); }
+  45%  { transform: translateY(-26px) scale(.92, 1.08); }
+  75%  { transform: translateY(0)    scale(1.05, .95); }
+  100% { transform: translateY(0)    scale(1, 1); }
+}

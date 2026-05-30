@@ -169,6 +169,12 @@
     const st = $('sprite-stage');
     if (st) st.classList.toggle('walking', dir !== 0);
   }
+  function hop() {
+    const st = $('sprite-stage');
+    if (!st) return;
+    st.classList.remove('hopping'); void st.offsetWidth; st.classList.add('hopping');
+    setTimeout(() => st.classList.remove('hopping'), 620);
+  }
 
   // Capture the mouse only while the pointer is over real UI; otherwise clicks pass through.
   (function wireInteractive() {
@@ -188,9 +194,9 @@
     else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
   } else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
 
-  // Prefer Live2D when it loads (from CDN; needs internet). Until/unless it's ready the 3D/2D pet
-  // shows; on success we switch to it.
-  if (window.PetLive2D) {
+  // Live2D is opt-in (set window.__LIVE2D__ = true before this script). The chibi 2D sprite is
+  // the default visual; Live2D was an earlier exploration kept around as a fallback option.
+  if (window.PetLive2D && window.__LIVE2D__) {
     window.PetLive2D.init($('live2d'), {
       onReady: () => {
         useLive2D = true;
@@ -206,6 +212,7 @@
     window.api.onPaint(paint);
     window.api.requestPaint();
     if (window.api.onWalk) window.api.onWalk(walk);
+    if (window.api.onHop) window.api.onHop(hop);
   } else if (window.__FIXTURE__) {
     paint(window.__FIXTURE__);
   }

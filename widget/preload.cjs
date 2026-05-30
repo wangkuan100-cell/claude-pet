@@ -17,4 +17,6 @@ contextBridge.exposeInMainWorld('api', {
   contextMenu: () => ipcRenderer.send('context-menu'),
   // main asks the renderer to play a walk animation while wandering (dir: -1/1, 0 = stop)
   onWalk: (cb) => ipcRenderer.on('walk', (_e, dir) => cb(dir)),
+  // main asks for a one-shot in-place hop (random idle behaviour)
+  onHop: (cb) => ipcRenderer.on('hop', () => cb()),
 });

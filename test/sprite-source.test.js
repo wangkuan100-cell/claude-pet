@@ -22,5 +22,12 @@ test('assetDataUrl returns a base64 PNG data URL for an existing sprite, else nu
   assert.match(url, /^data:image\/png;base64,/);
   assert.equal(Buffer.from(url.split(',')[1], 'base64').toString(), 'PNGDATA');
   assert.equal(assetDataUrl(dir, 'dragon/legendary'), null);
-  assert.equal(assetDataUrl(dir, 'egg'), null);
+});
+
+test("assetDataUrl maps the 'egg' key to the GENERIC assets/egg.png (same for everyone)", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'assets-'));
+  fs.writeFileSync(path.join(dir, 'egg.png'), Buffer.from('GENERIC-EGG'));
+  const url = assetDataUrl(dir, 'egg');
+  assert.match(url, /^data:image\/png;base64,/);
+  assert.equal(Buffer.from(url.split(',')[1], 'base64').toString(), 'GENERIC-EGG');
 });
