@@ -22,11 +22,19 @@
       window.Pet3D.show({ imageSrc: data.sprite.imageSrc || null, emoji: data.sprite.base || '🥚', form });
       window.Pet3D.setMood(data.expression || 'normal');
     } else {
-      const img = $('sprite-img'), base = $('sprite-base');
+      const img = $('sprite-img'), img2 = $('sprite-img2'), base = $('sprite-base');
       if (data.sprite.imageSrc) {
         img.src = data.sprite.imageSrc; img.classList.remove('hidden'); base.classList.add('hidden');
+        // Optional second frame: when present, cross-fade pose1 ↔ pose2 for true wing/tail motion.
+        if (data.sprite.imageSrcPose2) {
+          img2.src = data.sprite.imageSrcPose2; img2.classList.remove('hidden');
+          img.classList.add('frame-a'); img2.classList.add('frame-b');
+        } else {
+          img2.classList.add('hidden');
+          img.classList.remove('frame-a');
+        }
       } else {
-        img.classList.add('hidden'); base.classList.remove('hidden');
+        img.classList.add('hidden'); img2.classList.add('hidden'); base.classList.remove('hidden');
         base.textContent = data.sprite.base;
         base.style.transform = `scale(${data.sprite.scale})`;
       }

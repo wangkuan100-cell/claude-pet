@@ -47,6 +47,13 @@ html, body { background: transparent; overflow: hidden; user-select: none; }
 @keyframes toastIn { 0% { opacity: 0; transform: translate(-50%,12px); } 12%,80% { opacity: 1; transform: translate(-50%,0); } 100% { opacity: 0; transform: translate(-50%,-8px); } }
 .bubble-empathy { background: rgba(80,40,90,.92) !important; }
 #sprite-img { width: 120px; height: 120px; object-fit: contain; display: block; }
+/* Two-frame crossfade for forms that have a *_pose2.png — wings flap, tails sway, gems pulse.
+   When only pose1 is shown, the .hidden class on #sprite-img2 keeps it out of the layout. */
+#sprite-stage { position: relative; }
+#sprite-img.frame-a   { animation: xfade-a 0.85s ease-in-out infinite; }
+#sprite-img2.frame-b  { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 120px; object-fit: contain; animation: xfade-b 0.85s ease-in-out infinite; }
+@keyframes xfade-a { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes xfade-b { 0%,100% { opacity: 0; } 50% { opacity: 1; } }
 
 /* evolution: a brief white flash over the whole window */
 #app.evolving { animation: evoflash 1.2s ease-out; }

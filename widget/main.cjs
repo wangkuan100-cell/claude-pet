@@ -40,6 +40,10 @@ function repaint() {
     // (resolving to the generic egg.png) or 'line/form' after hatching.
     const url = spriteSource.assetDataUrl(assetsDir, data.sprite.key);
     if (url) data.sprite.imageSrc = url;
+    // Optional pose2 frame — when present, the renderer cross-fades pose1 ↔ pose2 to animate
+    // wings/tails/cores. Forms without a pose2 file just show the single static sprite.
+    const url2 = spriteSource.assetDataUrlPose2(assetsDir, data.sprite.key);
+    if (url2) data.sprite.imageSrcPose2 = url2;
     // When reminders are toggled off, hide the nag bubbles (context/git/rest) but keep the
     // supportive empathy bubble.
     if (!prefs.reminders && data.bubble && data.bubble.kind !== 'empathy') data.bubble = null;
