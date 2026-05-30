@@ -17,9 +17,10 @@
     pixi: 'https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js',
     plugin: 'https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/cubism4.min.js',
   };
-  // A free Cubism-4 sample model (Live2D "Haru"), loaded from CDN. Override via CLAUDE_PET_LIVE2D_MODEL.
+  // A free Cubism-4 sample model from Live2D's official CubismWebSamples — "Hiyori", the cute
+  // schoolgirl mascot. Override via window.__LIVE2D_MODEL__ to point at any other .model3.json.
   const MODEL_URL = (window.__LIVE2D_MODEL__) ||
-    'https://cdn.jsdelivr.net/gh/guansss/pixi-live2d-display/test/assets/haru/haru_greeter_t03.model3.json';
+    'https://cdn.jsdelivr.net/gh/Live2D/CubismWebSamples@master/Samples/Resources/Hiyori/Hiyori.model3.json';
 
   let canvas, app, model, baseScale = 1, level = 1;
 
@@ -39,10 +40,15 @@
   function layout() {
     if (!model || !app) return;
     const W = app.renderer.width, H = app.renderer.height;
+    // Live2D models often pad their drawing bounds above the head for animation room. Anchor at
+    // bottom-center and position at the canvas floor so the feet land at the bottom and the head
+    // stays visible no matter how much empty padding lives above the head.
+    model.anchor.set(0.5, 1.0);
     model.scale.set(1);
-    baseScale = Math.min(W / model.width, H / model.height) * 0.95;
+    const fit = Math.min(W / model.width, H / model.height);
+    baseScale = fit * (window.__LIVE2D_FIT__ || 1.15);
     applyScale();
-    model.position.set(W / 2, H / 2);
+    model.position.set(W / 2, H - 4);
   }
   function applyScale() {
     if (model) model.scale.set(baseScale * (0.8 + Math.min(level, 6) * 0.034)); // grows a touch with level
