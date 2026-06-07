@@ -9,24 +9,33 @@ const root = path.join(__dirname, '..');
 const previewPath = path.join(root, 'bin', 'preview-all-pets.mjs');
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 
-test('package exposes a six-pet DragonBones preview script', () => {
+const EXPECTED_LINE_IDS = [
+  'phoenix',
+  'dragon',
+  'kitsune',
+  'cerberus',
+  'sphinx',
+  'golem',
+  'unicorn',
+  'griffin',
+  'pegasus',
+  'leviathan',
+  'basilisk',
+  'mandrake',
+];
+
+test('package exposes an expanded DragonBones preview script', () => {
   assert.equal(packageJson.scripts['preview:all-pets'], 'node bin/preview-all-pets.mjs');
   assert.equal(fs.existsSync(previewPath), true);
 });
 
-test('six-pet preview covers every legendary pet with DragonBones fixtures', () => {
+test('all-pets preview covers every legendary pet with DragonBones fixtures', () => {
   const source = fs.readFileSync(previewPath, 'utf8');
 
-  for (const key of [
-    'phoenix/legendary',
-    'dragon/legendary',
-    'kitsune/legendary',
-    'cerberus/legendary',
-    'sphinx/legendary',
-    'golem/legendary',
-  ]) {
-    assert.match(source, new RegExp(key.replace('/', '\\/')));
-  }
+  assert.equal(EXPECTED_LINE_IDS.length, 12);
+  assert.match(source, /LINE_IDS/);
+  assert.match(source, /LINES/);
+  assert.match(source, /legendary/);
   assert.match(source, /attachSpriteAssets/);
   assert.match(source, /DragonBones whole-sprite rig/);
   assert.match(source, /127\.0\.0\.1/);

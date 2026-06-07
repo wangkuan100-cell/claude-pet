@@ -4,7 +4,7 @@
 
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)
-![tests](https://img.shields.io/badge/tests-102%20passing-success)
+![tests](https://img.shields.io/badge/tests-151%20passing-success)
 ![plugin](https://img.shields.io/badge/Codex%20%2B%20Claude%20Code-compatible-8A63D2)
 
 **code-pet** is a local desktop pet for Codex and Claude Code. A small, always-on-top pet floats on your desktop and **levels up from your real coding activity** — every commit, passing test, and shipped feature grows it from a humble egg into a legendary creature. It also keeps an eye on your session and gently nudges you when your context window is filling up, when uncommitted work is piling up, or when it's time for a break.
@@ -12,7 +12,7 @@
 It is built around one hard rule: **the pet never touches your project.** The hooks only *observe* activity and write to a private state directory, and the only git commands they ever run are read-only.
 
 <p align="center">
-  <img src="assets/phoenix/egg.png" width="72" alt="egg">
+  <img src="assets/egg.png" width="72" alt="egg">
   <img src="assets/phoenix/hatchling.png" width="72" alt="hatchling">
   <img src="assets/phoenix/juvenile.png" width="72" alt="juvenile">
   <img src="assets/phoenix/adolescent.png" width="72" alt="adolescent">
@@ -24,12 +24,12 @@ It is built around one hard rule: **the pet never touches your project.** The ho
 ## Highlights
 
 - **Grows as you code.** XP comes from commits (a `feat` is worth more than a `chore`), passing tests, new files, milestones, and tokens, with a daily-streak multiplier. Six levels carry your pet from egg to a legendary final form, with a celebratory flash at every evolution.
-- **Six evolution lines, hatched at random.** Every pet starts as an egg and hatches into one of six creatures — phoenix, dragon, kitsune, cerberus, sphinx, or golem — chosen randomly (you don't pick). Each grows through six hand-generated cartoon-3D forms.
+- **Twelve evolution lines, hatched at random.** Everyone starts from the same generic egg, then hatches into one of twelve creatures chosen randomly (you don't pick). Each grows through six forms while the pre-hatch egg never reveals the species.
 - **Moods you can read at a glance.** The pet's body language reflects how things are going: peppy when you're in flow, drowsy when idle, and an anxious sway (plus an encouraging word) when tests keep failing.
 - **Gentle reminders.** Speech bubbles for a near-full context window, uncommitted changes piling up, or a long stretch without a break.
 - **Lives on your desktop.** A frameless, transparent, always-on-top window. Drag it anywhere (it remembers), click for a stats panel, double-click to feed it a treat — and it wanders along the bottom edge on its own. Clicks pass through everywhere except the pet itself.
 - **2.5D-ready art.** The three.js renderer can stage a sprite as layered transparent planes when `assets/layers/<line>/<form>/manifest.json` exists, with automatic fallback to the original pose PNGs.
-- **Read-only by design, and tested.** Pure-Node engine with zero runtime dependencies, 102 tests, and a dedicated suite that enforces the no-side-effects invariant.
+- **Read-only by design, and tested.** Pure-Node engine with zero runtime dependencies, 151 tests, and a dedicated suite that enforces the no-side-effects invariant.
 
 ## How it works
 
@@ -186,9 +186,15 @@ The pet raises a speech bubble when:
   <img src="assets/cerberus/legendary.png" width="96" alt="cerberus">
   <img src="assets/sphinx/legendary.png" width="96" alt="sphinx">
   <img src="assets/golem/legendary.png" width="96" alt="golem">
+  <img src="assets/unicorn/legendary.png" width="96" alt="unicorn">
+  <img src="assets/griffin/legendary.png" width="96" alt="griffin">
+  <img src="assets/pegasus/legendary.png" width="96" alt="pegasus">
+  <img src="assets/leviathan/legendary.png" width="96" alt="leviathan">
+  <img src="assets/basilisk/legendary.png" width="96" alt="basilisk">
+  <img src="assets/mandrake/legendary.png" width="96" alt="mandrake">
 </p>
 
-phoenix 凤凰 🔥 · dragon 龙王 🐉 · kitsune 九尾狐 ✨ · cerberus 地狱犬 🐺 · sphinx 狮身兽 🦁 · golem 魔像王 💎
+phoenix 凤凰 🔥 · dragon 龙王 🐉 · kitsune 九尾狐 ✨ · cerberus 地狱犬 🐺 · sphinx 狮身兽 🦁 · golem 魔像王 💎 · unicorn 独角兽 🦄 · griffin 狮鹫 🦅 · pegasus 天马 🐴 · leviathan 小海龙 🌊 · basilisk 蛇羽蜥 🐍 · mandrake 曼德拉草 🌿
 
 ## Configuration
 
@@ -202,14 +208,20 @@ phoenix 凤凰 🔥 · dragon 龙王 🐉 · kitsune 九尾狐 ✨ · cerberus �
 
 ## Art
 
-The 36 base sprites (6 lines × 6 forms), plus extra pose frames for animation, are generated with the OpenAI Images API and committed to the repo, so you don't need an API key to use the pet. To regenerate them:
+The committed art includes one shared pre-hatch egg plus 12 post-hatch creature lines, with extra pose frames for animation. The original image-model sprites can be regenerated with the OpenAI Images API:
 
 ```
 OPENAI_API_KEY=sk-... npm run gen-art            # all lines
 OPENAI_API_KEY=sk-... npm run gen-art phoenix    # a single line
 ```
 
-Generation uses `gpt-image-1`, which supports the transparent backgrounds the floating window needs (override with `OPENAI_IMAGE_MODEL`). Until a PNG exists, the pet falls back to an emoji.
+Generation uses `gpt-image-1`, which supports the transparent backgrounds the floating window needs (override with `OPENAI_IMAGE_MODEL`). The expanded local creature pack can also be rebuilt without an API key:
+
+```
+npm run gen-expanded-art
+```
+
+Runtime always uses `assets/egg.png` before hatching, so there are no per-species egg PNGs to reveal the random outcome early. Until a post-hatch PNG exists, the pet falls back to an emoji.
 
 ### 2.5D layered sprites
 
@@ -226,7 +238,7 @@ The script requires Pillow. If a layer manifest is missing or incomplete, the wi
 ## Development
 
 ```
-node --test       # run all 102 tests (node:test, zero config)
+node --test       # run all 151 tests (node:test, zero config)
 npm run widget     # launch the Electron widget
 ```
 
@@ -244,7 +256,7 @@ assets/     generated sprites — <line>/<form>.png
 commands/   the /pet slash command
 skills/     the claude-pet skill
 hooks/      hook registration (hooks.json)
-test/       82 tests (node:test)
+test/       node:test coverage for engine, hooks, renderer bridges, rigs, and assets
 docs/       design specs and implementation plans
 ```
 

@@ -35,6 +35,7 @@
     "widget": "electron .",
     "preview:all-pets": "node bin/preview-all-pets.mjs",
     "codex-hook": "node bin/codex-hook.js",
+    "gen-expanded-art": "node art/generate-local-expanded-pets.mjs",
     "gen-art": "node art/generate.mjs"
   },
   "devDependencies": {

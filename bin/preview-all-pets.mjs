@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as spriteSource from '../widget/sprite-source.js';
 import { attachSpriteAssets } from '../widget/sprite-paint-assets.js';
+import { LINES, LINE_IDS } from '../src/lines.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
@@ -12,14 +13,11 @@ const assetsDir = path.join(projectRoot, 'assets');
 const port = Number(process.env.PORT || 4322);
 const host = process.env.HOST || '127.0.0.1';
 
-const pets = [
-  { key: 'phoenix/legendary', label: '凤凰', mark: '🔥' },
-  { key: 'dragon/legendary', label: '龙王', mark: '🐉' },
-  { key: 'kitsune/legendary', label: '九尾狐', mark: '✨' },
-  { key: 'cerberus/legendary', label: '地狱犬', mark: '🐺' },
-  { key: 'sphinx/legendary', label: '狮身兽', mark: '🦁' },
-  { key: 'golem/legendary', label: '魔像王', mark: '💎' },
-];
+const pets = LINE_IDS.map((line) => ({
+  key: `${line}/legendary`,
+  label: LINES[line].name,
+  mark: LINES[line].emoji,
+}));
 
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -90,8 +88,8 @@ function rootHtml() {
 </head>
 <body>
   <header>
-    <h1>六系 legendary 宠物同屏预览</h1>
-    <div class="note">每只独立跑 Pet3D · DragonBones whole-sprite rig · 轻量眼睛/眨眼</div>
+    <h1>${pets.length} 系 legendary 宠物同屏预览</h1>
+    <div class="note">统一蛋随机孵化 · 每只独立跑 Pet3D · DragonBones whole-sprite rig · 轻量眼睛/眨眼</div>
   </header>
   <main class="grid">${cards}</main>
 </body>

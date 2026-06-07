@@ -1,4 +1,4 @@
-// Six evolution lines, each with six forms (egg -> ... -> legendary).
+// Twelve evolution lines, each with six forms (egg -> ... -> legendary).
 // `art` is the creature description fed to the image model (joined with STYLE).
 // `emoji` is the placeholder shown until a generated PNG exists.
 //
@@ -72,6 +72,72 @@ export const LINES = {
       adolescent: { emoji: '🟩', art: 'a chibi crystal slime, a few small gems softly floating inside its translucent body, round and bouncy shape' },
       adult:      { emoji: '💠', art: 'a chibi crystal spirit, soft jade-blue jelly body, a big single crystal on top of its head, tiny round arms, sparkling eyes' },
       legendary:  { emoji: '💎', art: 'a chibi legendary crystal spirit king, a glowing gem core inside the translucent body, a small crystal crown on the head, still Q-style big-head-small-body kawaii' },
+    },
+  },
+  unicorn: {
+    name: '独角兽', emoji: '🦄',
+    forms: {
+      egg:        { emoji: '🥚', art: 'a round pearl-pink egg with a tiny spiral horn mark and soft rainbow speckles on a glossy shell' },
+      hatchling:  { emoji: '🐴', art: 'a tiny chibi white foal with a soft pastel mane, oversized round head, tiny stubby horn, sparkling eyes, plump baby body' },
+      juvenile:   { emoji: '🐴', art: 'a chibi white unicorn child, short golden horn, fluffy pastel rainbow mane, round cheeks, tiny hooves, gentle smile' },
+      adolescent: { emoji: '🦄', art: 'a chibi young unicorn, longer pearly horn, curled pastel mane, small star charm on the neck, big curious eyes' },
+      adult:      { emoji: '🦄', art: 'a chibi unicorn mascot, glossy white coat, soft rainbow mane and tail, golden hooves, plump tiny body, happy face' },
+      legendary:  { emoji: '🦄', art: 'a chibi legendary unicorn prince, pearly white coat, luminous spiral horn, floating rainbow ribbons, tiny star crown, still big-head-small-body kawaii' },
+    },
+  },
+  griffin: {
+    name: '狮鹫', emoji: '🦅',
+    forms: {
+      egg:        { emoji: '🥚', art: 'a round cream-gold egg with tiny feather and paw markings on a glossy shell' },
+      hatchling:  { emoji: '🐥', art: 'a tiny chibi griffin chick, round eagle face, soft lion paws, stub wings, oversized head, bright button eyes' },
+      juvenile:   { emoji: '🦅', art: 'a chibi young griffin, fluffy cream feathers, small lion tail, tiny talons, round body, curious sparkling eyes' },
+      adolescent: { emoji: '🦅', art: 'a chibi adolescent griffin, golden feather crest, small spread wings, lion cub body, big proud but cute eyes' },
+      adult:      { emoji: '🦁', art: 'a chibi griffin mascot, rounded eagle head, soft golden wings, tiny lion paws, fluffy tail tuft, glossy warm shading' },
+      legendary:  { emoji: '🦅', art: 'a chibi legendary griffin guardian, golden eagle crest, plush lion body, bright feather wings, tiny sun medallion, kawaii proportions' },
+    },
+  },
+  pegasus: {
+    name: '天马', emoji: '🐴',
+    forms: {
+      egg:        { emoji: '🥚', art: 'a round sky-blue egg with little cloud swirls and tiny wing marks on a glossy shell' },
+      hatchling:  { emoji: '🐴', art: 'a tiny chibi winged foal, soft sky-blue mane, little feather wing buds, oversized round head, shiny gentle eyes' },
+      juvenile:   { emoji: '🐴', art: 'a chibi young pegasus, fluffy small wings, white coat with pale blue socks, round cheeks, tiny hooves' },
+      adolescent: { emoji: '🐴', art: 'a chibi adolescent pegasus, cloud-like mane, half-open feather wings, bright eyes, airy floating pose' },
+      adult:      { emoji: '🐴', art: 'a chibi pegasus mascot, white plush body, spread sky-blue wings, curly cloud mane, happy tiny trot' },
+      legendary:  { emoji: '🐴', art: 'a chibi legendary pegasus, luminous cloud mane, wide soft feather wings, tiny silver crown, star dust around hooves, cute Q-style proportions' },
+    },
+  },
+  leviathan: {
+    name: '小海龙', emoji: '🌊',
+    forms: {
+      egg:        { emoji: '🥚', art: 'a round aqua egg with tiny wave marks and pearly bubbles floating inside a glossy shell' },
+      hatchling:  { emoji: '🐟', art: 'a tiny chibi sea dragon hatchling, round aqua head, little fin ears, small curled tail, sparkling watery eyes' },
+      juvenile:   { emoji: '🐟', art: 'a chibi young sea dragon, teal scales, soft frill fins, plump curled body, cheerful round eyes' },
+      adolescent: { emoji: '🐬', art: 'a chibi adolescent leviathan, long cute teal body, little coral horns, flowing side fins, playful smile' },
+      adult:      { emoji: '🐋', art: 'a chibi sea dragon mascot, glossy aqua body, rounded fins, pearl-like belly, curled tail, bright friendly face' },
+      legendary:  { emoji: '🌊', art: 'a chibi legendary leviathan, aqua-blue sea dragon body, coral crown, pearl necklace, soft wave aura, still tiny and adorable' },
+    },
+  },
+  basilisk: {
+    name: '蛇羽蜥', emoji: '🐍',
+    forms: {
+      egg:        { emoji: '🥚', art: 'a round moss-green egg with tiny feather-scale marks and golden freckles on a glossy shell' },
+      hatchling:  { emoji: '🦎', art: 'a tiny chibi basilisk lizard, round green head, tiny feather crest, short curled tail, big harmless eyes' },
+      juvenile:   { emoji: '🦎', art: 'a chibi young basilisk, soft green scales, fluffy feather collar, plump little body, friendly shy expression' },
+      adolescent: { emoji: '🐍', art: 'a chibi adolescent basilisk, emerald body, golden feather crest, curled tail, tiny claws, sparkling gentle eyes' },
+      adult:      { emoji: '🐍', art: 'a chibi basilisk mascot, bright green scales, soft golden feather mane, rounded snake-lizard body, cute smile' },
+      legendary:  { emoji: '🐍', art: 'a chibi legendary basilisk, emerald scales, golden feather crown, curled ribbon tail, tiny glowing charm, kawaii not scary' },
+    },
+  },
+  mandrake: {
+    name: '曼德拉草', emoji: '🌿',
+    forms: {
+      egg:        { emoji: '🥚', art: 'a round warm-brown seed egg with cute leaf sprouts and tiny root freckles on a glossy shell' },
+      hatchling:  { emoji: '🌱', art: 'a tiny chibi mandrake sprout, round root baby body, two little leaves on the head, big sleepy eyes, soft smile' },
+      juvenile:   { emoji: '🌱', art: 'a chibi young mandrake, plump root body, leafy hair tuft, tiny root feet, rosy cheeks, shy sparkling eyes' },
+      adolescent: { emoji: '🌿', art: 'a chibi adolescent mandrake, larger leaf crown, small vine arms, rounded root body, curious tilted head' },
+      adult:      { emoji: '🌿', art: 'a chibi mandrake mascot, fluffy green leaf hair, warm tan root body, tiny vine scarf, happy round face' },
+      legendary:  { emoji: '🌿', art: 'a chibi legendary mandrake sage, lush leaf crown, tiny flower ornaments, glowing root body, soft green aura, big gentle eyes' },
     },
   },
 };
