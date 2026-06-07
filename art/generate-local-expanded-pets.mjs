@@ -43,6 +43,35 @@ function hexColor(hex, alpha = 255) {
   };
 }
 
+function clamp(value, min = 0, max = 255) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function seedFrom(text) {
+  let seed = 2166136261;
+  for (let i = 0; i < text.length; i++) {
+    seed ^= text.charCodeAt(i);
+    seed = Math.imul(seed, 16777619);
+  }
+  return seed >>> 0;
+}
+
+function mulberry32(seed) {
+  return function next() {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function pixelNoise(seed, x, y) {
+  let n = seed ^ Math.imul(x + 101, 374761393) ^ Math.imul(y + 503, 668265263);
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+}
+
 function blend(buf, x, y, color, coverage = 1) {
   if (x < 0 || y < 0 || x >= W || y >= H || coverage <= 0) return;
   const i = (Math.floor(y) * W + Math.floor(x)) * 4;
@@ -380,13 +409,74 @@ function pngBuffer(rgba, width, height) {
   ]);
 }
 
+function paintedAura(buf, line, form, pose) {
+  const cfg = EXPANDED_PETS[line];
+  const rnd = mulberry32(seedFrom(`${line}:${form}:${pose}:aura`));
+  const strength = form === 'legendary' ? 1 : 0.68;
+  for (let i = 0; i < 26; i++) {
+    const r = rnd();
+    const cx = 128 + (rnd() - 0.5) * 32;
+    const cy = 137 + (rnd() - 0.5) * 28;
+    const rx = (46 + rnd() * 50) * FORM_SCALE[form];
+    const ry = (45 + rnd() * 48) * FORM_SCALE[form];
+    const color = r > 0.62 ? cfg.accent2 : r > 0.28 ? cfg.accent : '#ffffff';
+    ellipse(buf, cx, cy, rx, ry, color, Math.round((5 + rnd() * 12) * strength));
+  }
+}
+
+function paintedDabs(buf, line, form, pose) {
+  const cfg = EXPANDED_PETS[line];
+  const rnd = mulberry32(seedFrom(`${line}:${form}:${pose}:dabs`));
+  const s = FORM_SCALE[form];
+  const count = form === 'legendary' ? 360 : 260;
+  const palette = ['#ffffff', cfg.body, cfg.shade, cfg.accent, cfg.accent2, cfg.metal];
+  for (let i = 0; i < count; i++) {
+    const angle = rnd() * Math.PI * 2;
+    const radius = Math.pow(rnd(), 0.72) * (54 + 36 * s);
+    const cx = 128 + Math.cos(angle) * radius * (0.74 + rnd() * 0.34);
+    const cy = 136 + Math.sin(angle) * radius * (0.68 + rnd() * 0.38);
+    const rx = 1.2 + rnd() * 5.6;
+    const ry = 0.8 + rnd() * 4.4;
+    const color = palette[Math.floor(rnd() * palette.length)];
+    const alpha = Math.round(5 + rnd() * (form === 'legendary' ? 26 : 20));
+    rotatedEllipse(buf, cx, cy, rx, ry, rnd() * Math.PI, color, alpha);
+  }
+}
+
+function painterlyFinish(buf, line, form, pose) {
+  const cfg = EXPANDED_PETS[line];
+  const seed = seedFrom(`${line}:${form}:${pose}:grain`);
+  const rim = hexColor(cfg.accent2);
+  for (let y = 0; y < H; y++) {
+    const ny = y / H;
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      const a = buf[i + 3];
+      if (a === 0) continue;
+
+      const nx = x / W;
+      const n1 = pixelNoise(seed, x, y) - 0.5;
+      const n2 = pixelNoise(seed ^ 0x9e3779b9, Math.floor(x / 5), Math.floor(y / 5)) - 0.5;
+      const topLeftLight = 34 * (1 - ny) + 15 * (1 - nx);
+      const lowerShade = -30 * ny + 8 * Math.sin((nx * 8 + ny * 5 + pose) * Math.PI);
+      const airbrush = n1 * 20 + n2 * 18;
+      const transparentEdgeBoost = a < 90 ? 18 : 0;
+      const delta = topLeftLight + lowerShade + airbrush + transparentEdgeBoost;
+
+      buf[i] = clamp(Math.round(buf[i] + delta + (rim.r - buf[i]) * (a < 120 ? 0.045 : 0.015)));
+      buf[i + 1] = clamp(Math.round(buf[i + 1] + delta + (rim.g - buf[i + 1]) * (a < 120 ? 0.045 : 0.015)));
+      buf[i + 2] = clamp(Math.round(buf[i + 2] + delta + (rim.b - buf[i + 2]) * (a < 120 ? 0.045 : 0.015)));
+      buf[i + 3] = clamp(Math.round(a + n1 * 10), 0, 255);
+    }
+  }
+}
+
 function render(line, form, pose = 0) {
   const buf = Buffer.alloc(W * H * 4);
-  if (form === 'legendary') {
-    ellipse(buf, 128, 132, 83, 86, EXPANDED_PETS[line].accent2, 42);
-    ellipse(buf, 128, 132, 62, 68, '#ffffff', 36);
-  }
+  paintedAura(buf, line, form, pose);
   DRAWERS[line](buf, form, pose);
+  paintedDabs(buf, line, form, pose);
+  painterlyFinish(buf, line, form, pose);
   return pngBuffer(downsample(buf), SIZE, SIZE);
 }
 

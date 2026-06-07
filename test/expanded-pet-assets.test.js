@@ -32,3 +32,13 @@ test('expanded legendary pets enter the shared DragonBones whole-sprite rig', ()
     assert.equal(rig?.id, `${line}/legendary`);
   }
 });
+
+test('expanded local sprites are painterly enough to match the original pet style', () => {
+  for (const line of EXPANDED_LINE_IDS) {
+    for (const form of FORMS.filter((value) => value !== 'egg')) {
+      const spritePath = path.join(assetsDir, line, `${form}.png`);
+      const bytes = fs.statSync(spritePath).size;
+      assert.ok(bytes >= 24000, `${line}/${form}.png is too flat/vector-like (${bytes} bytes)`);
+    }
+  }
+});
