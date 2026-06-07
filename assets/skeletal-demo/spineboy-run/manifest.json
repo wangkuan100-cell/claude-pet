@@ -1,0 +1,34 @@
+{
+  "id": "spineboy-run-remote",
+  "engine": "spine",
+  "label": "Spineboy run skeletal animation demo",
+  "source": {
+    "repository": "EsotericSoftware/spine-runtimes",
+    "ref": "4.3",
+    "path": "examples/spineboy"
+  },
+  "files": {
+    "skeletonUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/spineboy/export/spineboy-pro.json",
+    "atlasUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/spineboy/export/spineboy-pma.atlas",
+    "textureUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/spineboy/export/spineboy-pma.png",
+    "licenseUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/spineboy/license.txt"
+  },
+  "demoRuntime": {
+    "cdnJs": "https://unpkg.com/@esotericsoftware/spine-player@4.3.*/dist/iife/spine-player.js",
+    "cdnCss": "https://unpkg.com/@esotericsoftware/spine-player@4.3.*/dist/spine-player.css"
+  },
+  "animations": [
+    "run",
+    "walk",
+    "idle",
+    "jump"
+  ],
+  "validationGoal": "Verify true skeletal leg run motion before phoenix legendary rigging.",
+  "productionRigTarget": "DragonBones/LoongBones",
+  "productionUse": false,
+  "licenseNotes": [
+    "Evaluation-only reference demo for motion validation.",
+    "Do not ship this Spine runtime or sample character as the production pet without a proper Spine runtime/license review.",
+    "Use DragonBones or LoongBones for the phoenix legendary production rig."
+  ]
+}

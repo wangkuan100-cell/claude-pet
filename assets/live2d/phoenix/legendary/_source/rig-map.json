@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "target": "phoenix/legendary",
+  "canvas": {
+    "width": 256,
+    "height": 256
+  },
+  "sourceSprite": "../../../../phoenix/legendary.png",
+  "sourceLayerManifest": "../../../../layers/phoenix/legendary/manifest.json",
+  "layerOrder": [
+    "body-core",
+    "wing-left",
+    "wing-right",
+    "foot-left",
+    "foot-right",
+    "flame-halo",
+    "crest-front"
+  ],
+  "export": {
+    "model3": "../model3.json",
+    "moc": "../phoenix.moc3",
+    "physics": "../phoenix.physics3.json",
+    "texture": "../textures/texture_00.png",
+    "motionDirectory": "../motions"
+  },
+  "cubismSetup": {
+    "modelId": "PhoenixLegendary",
+    "textureAtlasSize": 2048,
+    "meshDensity": "medium",
+    "origin": "bottom-center",
+    "units": "source-pixels",
+    "notes": [
+      "Import these PNG layers as separate ArtMeshes in Cubism Editor.",
+      "Use transparent source layers only; do not import generated pose2/pose3/pose4 frames as rig parts.",
+      "Keep the face and body silhouette stable. Wings and flame halo carry most of the motion."
+    ]
+  },
+  "parameters": [
+    { "id": "ParamAngleX", "min": -30, "default": 0, "max": 30, "role": "head and body look direction" },
+    { "id": "ParamAngleY", "min": -20, "default": 0, "max": 20, "role": "vertical look direction" },
+    { "id": "ParamBodyAngleZ", "min": -15, "default": 0, "max": 15, "role": "body lean and pet-like balance" },
+    { "id": "ParamBreath", "min": 0, "default": 0.5, "max": 1, "role": "soft breathing scale" },
+    { "id": "ParamWingL", "min": -1, "default": 0, "max": 1, "role": "left wing flap" },
+    { "id": "ParamWingR", "min": -1, "default": 0, "max": 1, "role": "right wing flap" },
+    { "id": "ParamFootL", "min": -1, "default": 0, "max": 1, "role": "left foot step" },
+    { "id": "ParamFootR", "min": -1, "default": 0, "max": 1, "role": "right foot step" },
+    { "id": "ParamFlame", "min": 0, "default": 0.5, "max": 1, "role": "flame halo pulse" },
+    { "id": "ParamCrest", "min": -1, "default": 0, "max": 1, "role": "crest bounce and expression accent" },
+    { "id": "ParamEyeOpen", "min": 0, "default": 1, "max": 1, "role": "blink and sleepy expression" },
+    { "id": "ParamMouthForm", "min": -1, "default": 0, "max": 1, "role": "smile, neutral, worried mouth" }
+  ],
+  "layers": [
+    {
+      "id": "body-core",
+      "file": "layers/body-core.png",
+      "partId": "PartBodyCore",
+      "deformerId": "WarpBodyCore",
+      "parent": "Root",
+      "drawOrder": 300,
+      "pivot": { "x": 128, "y": 163 },
+      "parameters": ["ParamAngleX", "ParamAngleY", "ParamBodyAngleZ", "ParamBreath", "ParamEyeOpen", "ParamMouthForm"],
+      "mesh": { "density": "medium", "extraVertices": ["cheeks", "belly", "eyes", "mouth"] },
+      "binding": "Main stable mass. Keep movement subtle; the pet should feel alive, not segmented."
+    },
+    {
+      "id": "wing-left",
+      "file": "layers/wing-left.png",
+      "partId": "PartWingL",
+      "deformerId": "WarpWingL",
+      "parent": "WarpBodyCore",
+      "drawOrder": 120,
+      "pivot": { "x": 91, "y": 153 },
+      "parameters": ["ParamWingL", "ParamBodyAngleZ", "ParamBreath"],
+      "mesh": { "density": "high", "extraVertices": ["shoulder", "outer-feathers", "lower-feathers"] },
+      "binding": "Hinge at shoulder. Use curved warp deformation so feathers arc during flap instead of rotating as one flat card."
+    },
+    {
+      "id": "wing-right",
+      "file": "layers/wing-right.png",
+      "partId": "PartWingR",
+      "deformerId": "WarpWingR",
+      "parent": "WarpBodyCore",
+      "drawOrder": 130,
+      "pivot": { "x": 164, "y": 153 },
+      "parameters": ["ParamWingR", "ParamBodyAngleZ", "ParamBreath"],
+      "mesh": { "density": "high", "extraVertices": ["shoulder", "outer-feathers", "lower-feathers"] },
+      "binding": "Mirror of left wing. Offset keyframes very slightly from left wing for organic flapping."
+    },
+    {
+      "id": "foot-left",
+      "file": "layers/foot-left.png",
+      "partId": "PartFootL",
+      "deformerId": "WarpFootL",
+      "parent": "WarpBodyCore",
+      "drawOrder": 410,
+      "pivot": { "x": 99, "y": 226 },
+      "parameters": ["ParamFootL", "ParamBodyAngleZ"],
+      "mesh": { "density": "low", "extraVertices": ["toe-tip", "heel"] },
+      "binding": "Small alternating step. Do not exaggerate into a mechanical pendulum."
+    },
+    {
+      "id": "foot-right",
+      "file": "layers/foot-right.png",
+      "partId": "PartFootR",
+      "deformerId": "WarpFootR",
+      "parent": "WarpBodyCore",
+      "drawOrder": 420,
+      "pivot": { "x": 151, "y": 226 },
+      "parameters": ["ParamFootR", "ParamBodyAngleZ"],
+      "mesh": { "density": "low", "extraVertices": ["toe-tip", "heel"] },
+      "binding": "Alternates with left foot for Run. Keep contact point near the bottom shadow."
+    },
+    {
+      "id": "flame-halo",
+      "file": "layers/flame-halo.png",
+      "partId": "PartFlameHalo",
+      "deformerId": "WarpFlameHalo",
+      "parent": "Root",
+      "drawOrder": 80,
+      "pivot": { "x": 128, "y": 92 },
+      "parameters": ["ParamFlame", "ParamBreath", "ParamBodyAngleZ"],
+      "mesh": { "density": "medium", "extraVertices": ["outer-flame", "top-flame", "side-sparks"] },
+      "binding": "Background aura. Pulse opacity and scale gently; never block face or wings."
+    },
+    {
+      "id": "crest-front",
+      "file": "layers/crest-front.png",
+      "partId": "PartCrestFront",
+      "deformerId": "WarpCrestFront",
+      "parent": "WarpBodyCore",
+      "drawOrder": 500,
+      "pivot": { "x": 129, "y": 76 },
+      "parameters": ["ParamCrest", "ParamAngleX", "ParamAngleY", "ParamBreath"],
+      "mesh": { "density": "medium", "extraVertices": ["crest-tip", "gem", "forehead"] },
+      "binding": "Expression accent. Small bounce on Tap and Happy, droop on Worried."
+    }
+  ],
+  "physics": {
+    "recommendedFile": "../phoenix.physics3.json",
+    "groups": [
+      {
+        "id": "BreathBody",
+        "input": "ParamBreath",
+        "outputs": ["ParamBodyAngleZ", "ParamCrest"],
+        "intent": "subtle idle life"
+      },
+      {
+        "id": "WingFeatherFollow",
+        "input": "ParamWingL",
+        "outputs": ["ParamWingR", "ParamFlame"],
+        "intent": "feathers and flame respond after wing beats"
+      },
+      {
+        "id": "MoodAura",
+        "input": "ParamFlame",
+        "outputs": ["ParamCrest"],
+        "intent": "happy bright pulse, worried dim flicker"
+      }
+    ]
+  }
+}

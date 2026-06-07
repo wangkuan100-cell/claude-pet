@@ -5,7 +5,7 @@
     {
       "name": "claude-pet",
       "source": "./",
-      "description": "A desktop pet that grows as you code. Hooks track activity (read-only), an Electron widget shows a floating pet that levels up, changes mood, and reminds you about context/commits/breaks.",
+      "description": "A desktop pet that grows as you code in Claude Code or Codex. Read-only adapters track activity, and an Electron widget shows a floating pet that levels up, changes mood, and reminds you about context/commits/breaks.",
       "version": "0.5.0"
     }
   ]

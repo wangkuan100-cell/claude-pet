@@ -6,9 +6,53 @@ import path from 'node:path';
 
 function freshHome() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
+  delete process.env.CODE_PET_HOME;
   process.env.CLAUDE_PET_HOME = dir;
   return dir;
 }
+
+function clearPetEnv() {
+  delete process.env.CODE_PET_HOME;
+  delete process.env.CLAUDE_PET_HOME;
+}
+
+test('baseDir prefers CODE_PET_HOME over the legacy Claude env var', async () => {
+  const codeHome = fs.mkdtempSync(path.join(os.tmpdir(), 'code-pet-'));
+  const claudeHome = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
+  process.env.CODE_PET_HOME = codeHome;
+  process.env.CLAUDE_PET_HOME = claudeHome;
+  const { baseDir } = await import('../src/state.js?code-home');
+  assert.equal(baseDir(), codeHome);
+});
+
+test('baseDir keeps an existing legacy ~/.claude-pet state before defaulting to ~/.code-pet', async () => {
+  const oldHome = process.env.HOME;
+  const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), 'pet-home-'));
+  try {
+    clearPetEnv();
+    process.env.HOME = fakeHome;
+    const legacyHome = path.join(fakeHome, '.claude-pet');
+    fs.mkdirSync(legacyHome, { recursive: true });
+    fs.writeFileSync(path.join(legacyHome, 'pet.json'), '{}');
+    const { baseDir } = await import('../src/state.js?legacy-home');
+    assert.equal(baseDir(), legacyHome);
+  } finally {
+    process.env.HOME = oldHome;
+  }
+});
+
+test('baseDir defaults to ~/.code-pet when no legacy state exists', async () => {
+  const oldHome = process.env.HOME;
+  const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), 'pet-home-'));
+  try {
+    clearPetEnv();
+    process.env.HOME = fakeHome;
+    const { baseDir } = await import('../src/state.js?default-code-home');
+    assert.equal(baseDir(), path.join(fakeHome, '.code-pet'));
+  } finally {
+    process.env.HOME = oldHome;
+  }
+});
 
 test('defaultPet is an unadopted egg', async () => {
   freshHome();

@@ -1,0 +1,118 @@
+{
+  "id": "phoenix/legendary",
+  "engine": "dragonbones",
+  "version": 1,
+  "skeleton": "phoenix_ske.json",
+  "atlas": "phoenix_tex.json",
+  "texture": "phoenix_tex.png",
+  "sourceSprite": "../../../phoenix/legendary.png",
+  "runtime": {
+    "mode": "whole-sprite-safe",
+    "slot": "whole-body",
+    "meshZones": {
+      "leftWing": { "xMin": -0.96, "xMax": -0.62, "yMin": -0.42, "yMax": 0.3, "pivotX": -0.58, "pivotY": 0.02, "side": -1 },
+      "rightWing": { "xMin": 0.62, "xMax": 0.96, "yMin": -0.42, "yMax": 0.3, "pivotX": 0.58, "pivotY": 0.02, "side": 1 },
+      "face": { "xMin": -0.54, "xMax": 0.54, "yMin": -0.12, "yMax": 0.6, "pivotX": 0, "pivotY": 0.18 },
+      "feet": { "xMin": -0.36, "xMax": 0.36, "yMin": -0.92, "yMax": -0.48, "pivotX": 0, "pivotY": -0.58 },
+      "crest": { "xMin": -0.34, "xMax": 0.34, "yMin": 0.36, "yMax": 0.94, "pivotX": 0, "pivotY": 0.36 },
+      "leftEye": { "xMin": -0.34, "xMax": -0.05, "yMin": 0.01, "yMax": 0.32, "pivotX": -0.18, "pivotY": 0.17 },
+      "rightEye": { "xMin": 0.05, "xMax": 0.34, "yMin": 0.01, "yMax": 0.32, "pivotX": 0.18, "pivotY": 0.17 }
+    },
+    "animations": {
+      "idle": {
+        "duration": 1800,
+        "loop": true,
+        "keyframes": [
+          { "time": 0, "y": 0, "rotation": 0, "scaleX": 1, "scaleY": 1, "wingLift": -0.08, "crestSway": -0.08, "blink": 0 },
+          { "time": 0.5, "y": 0.018, "rotation": 0.008, "scaleX": 1.006, "scaleY": 1.012, "wingLift": 0.08, "crestSway": 0.08, "blink": 0 },
+          { "time": 1, "y": 0, "rotation": 0, "scaleX": 1, "scaleY": 1, "wingLift": -0.08, "crestSway": -0.08, "blink": 0 }
+        ]
+      },
+      "walk": {
+        "duration": 980,
+        "loop": true,
+        "keyframes": [
+          { "time": 0, "y": -0.004, "rotation": -0.012, "scaleX": 1.003, "scaleY": 0.998, "wingLift": -0.08, "wingCurl": 0.08, "footStride": -0.62, "footPlant": 0.9, "crestSway": -0.05, "blink": 0 },
+          { "time": 0.22, "y": 0.018, "rotation": 0.006, "scaleX": 0.999, "scaleY": 1.006, "wingLift": 0.02, "wingCurl": -0.02, "footStride": 0.1, "footPlant": 0.35, "crestSway": 0.03, "blink": 0 },
+          { "time": 0.5, "y": -0.004, "rotation": 0.012, "scaleX": 1.003, "scaleY": 0.998, "wingLift": -0.08, "wingCurl": 0.08, "footStride": 0.62, "footPlant": 0.9, "crestSway": 0.05, "blink": 0 },
+          { "time": 0.72, "y": 0.018, "rotation": -0.006, "scaleX": 0.999, "scaleY": 1.006, "wingLift": 0.02, "wingCurl": -0.02, "footStride": -0.1, "footPlant": 0.35, "crestSway": -0.03, "blink": 0 },
+          { "time": 1, "y": -0.004, "rotation": -0.012, "scaleX": 1.003, "scaleY": 0.998, "wingLift": -0.08, "wingCurl": 0.08, "footStride": -0.62, "footPlant": 0.9, "crestSway": -0.05, "blink": 0 }
+        ]
+      },
+      "run": {
+        "duration": 680,
+        "loop": true,
+        "keyframes": [
+          { "time": 0, "y": -0.018, "rotation": -0.032, "scaleX": 1.014, "scaleY": 0.988, "wingLift": -0.2, "wingCurl": 0.16, "footStride": -1, "footPlant": 0.85, "crestSway": -0.12, "blink": 0 },
+          { "time": 0.2, "y": 0.05, "rotation": 0.014, "scaleX": 0.992, "scaleY": 1.022, "wingLift": 0.14, "wingCurl": -0.12, "footStride": 0.2, "footPlant": 0.15, "crestSway": 0.08, "blink": 0 },
+          { "time": 0.5, "y": -0.018, "rotation": 0.032, "scaleX": 1.014, "scaleY": 0.988, "wingLift": -0.2, "wingCurl": 0.16, "footStride": 1, "footPlant": 0.85, "crestSway": 0.12, "blink": 0 },
+          { "time": 0.7, "y": 0.05, "rotation": -0.014, "scaleX": 0.992, "scaleY": 1.022, "wingLift": 0.14, "wingCurl": -0.12, "footStride": -0.2, "footPlant": 0.15, "crestSway": -0.08, "blink": 0 },
+          { "time": 1, "y": -0.018, "rotation": -0.032, "scaleX": 1.014, "scaleY": 0.988, "wingLift": -0.2, "wingCurl": 0.16, "footStride": -1, "footPlant": 0.85, "crestSway": -0.12, "blink": 0 }
+        ]
+      },
+      "hop": {
+        "duration": 760,
+        "loop": false,
+        "keyframes": [
+          { "time": 0, "y": -0.018, "rotation": 0, "scaleX": 1.035, "scaleY": 0.952, "wingLift": -0.1, "wingCurl": 0.12, "footStride": 0, "footPlant": 1, "crestSway": 0, "hopSquash": 0.8, "blink": 0 },
+          { "time": 0.18, "y": -0.006, "rotation": -0.012, "scaleX": 1.015, "scaleY": 1.02, "wingLift": 0.22, "wingCurl": -0.05, "footStride": 0.18, "footPlant": 0.3, "crestSway": -0.08, "hopSquash": -0.2, "blink": 0 },
+          { "time": 0.34, "y": 0.13, "rotation": -0.02, "scaleX": 0.978, "scaleY": 1.075, "wingLift": 0.64, "wingCurl": -0.24, "footStride": 0.25, "footPlant": 0, "crestSway": -0.16, "hopSquash": -0.5, "blink": 0 },
+          { "time": 0.62, "y": 0.016, "rotation": 0.014, "scaleX": 1.006, "scaleY": 1.01, "wingLift": 0.2, "wingCurl": 0.04, "footStride": -0.25, "footPlant": 0.45, "crestSway": 0.1, "hopSquash": 0, "blink": 0 },
+          { "time": 0.84, "y": -0.024, "rotation": 0, "scaleX": 1.042, "scaleY": 0.94, "wingLift": -0.18, "wingCurl": 0.14, "footStride": 0, "footPlant": 1, "crestSway": 0.04, "hopSquash": 0.68, "blink": 0 },
+          { "time": 1, "y": 0, "rotation": 0, "scaleX": 1, "scaleY": 1, "wingLift": -0.04, "wingCurl": 0.04, "footStride": 0, "footPlant": 0.65, "crestSway": 0, "hopSquash": 0, "blink": 0 }
+        ]
+      },
+      "flap": {
+        "duration": 520,
+        "loop": true,
+        "keyframes": [
+          { "time": 0, "y": -0.016, "rotation": -0.024, "scaleX": 1.014, "scaleY": 0.99, "wingLift": -0.58, "wingCurl": 0.28, "footPlant": 0.18, "crestSway": -0.14, "blink": 0 },
+          { "time": 0.18, "y": 0.035, "rotation": -0.002, "scaleX": 1.002, "scaleY": 1.014, "wingLift": 0.18, "wingCurl": -0.12, "footPlant": 0.08, "crestSway": -0.02, "blink": 0 },
+          { "time": 0.42, "y": 0.078, "rotation": 0.016, "scaleX": 0.99, "scaleY": 1.03, "wingLift": 0.78, "wingCurl": -0.34, "footPlant": 0, "crestSway": 0.16, "blink": 0 },
+          { "time": 0.68, "y": 0.046, "rotation": 0.008, "scaleX": 0.998, "scaleY": 1.014, "wingLift": 0.32, "wingCurl": -0.06, "footPlant": 0.08, "crestSway": 0.08, "blink": 0 },
+          { "time": 1, "y": -0.016, "rotation": -0.024, "scaleX": 1.014, "scaleY": 0.99, "wingLift": -0.58, "wingCurl": 0.28, "footPlant": 0.18, "crestSway": -0.14, "blink": 0 }
+        ]
+      },
+      "tap": {
+        "duration": 500,
+        "loop": false,
+        "keyframes": [
+          { "time": 0, "y": 0, "rotation": 0, "scaleX": 1, "scaleY": 1, "wingLift": 0, "crestSway": 0, "blink": 0 },
+          { "time": 0.28, "y": 0.04, "rotation": -0.025, "scaleX": 1.04, "scaleY": 1.03, "wingLift": 0.34, "crestSway": -0.2, "blink": 0.2 },
+          { "time": 0.5, "y": 0.025, "rotation": 0.018, "scaleX": 1.018, "scaleY": 1.018, "wingLift": 0.18, "crestSway": 0.12, "blink": 0 },
+          { "time": 1, "y": 0, "rotation": 0, "scaleX": 1, "scaleY": 1, "wingLift": 0, "crestSway": 0, "blink": 0 }
+        ]
+      },
+      "happy": {
+        "duration": 860,
+        "loop": true,
+        "keyframes": [
+          { "time": 0, "y": 0, "rotation": -0.024, "scaleX": 1.012, "scaleY": 1, "wingLift": 0.22, "crestSway": -0.22, "blink": 0 },
+          { "time": 0.34, "y": 0.06, "rotation": 0.028, "scaleX": 0.992, "scaleY": 1.03, "wingLift": 0.58, "crestSway": 0.2, "blink": 0 },
+          { "time": 0.62, "y": 0.02, "rotation": -0.012, "scaleX": 1.006, "scaleY": 1.012, "wingLift": 0.36, "crestSway": -0.06, "blink": 0.45 },
+          { "time": 1, "y": 0, "rotation": -0.024, "scaleX": 1.012, "scaleY": 1, "wingLift": 0.22, "crestSway": -0.22, "blink": 0 }
+        ]
+      },
+      "worried": {
+        "duration": 620,
+        "loop": true,
+        "keyframes": [
+          { "time": 0, "x": -0.012, "y": 0, "rotation": -0.012, "scaleX": 1, "scaleY": 1, "wingLift": -0.22, "crestSway": -0.28, "blink": 0 },
+          { "time": 0.3, "x": 0.01, "y": 0.004, "rotation": 0.01, "scaleX": 1, "scaleY": 1, "wingLift": -0.12, "crestSway": 0.18, "blink": 0.65 },
+          { "time": 0.58, "x": -0.008, "y": 0.006, "rotation": -0.006, "scaleX": 1, "scaleY": 1, "wingLift": -0.18, "crestSway": -0.18, "blink": 0 },
+          { "time": 1, "x": -0.012, "y": 0, "rotation": -0.012, "scaleX": 1, "scaleY": 1, "wingLift": -0.22, "crestSway": -0.28, "blink": 0 }
+        ]
+      },
+      "blink": {
+        "duration": 220,
+        "loop": false,
+        "keyframes": [
+          { "time": 0, "blink": 0, "wingLift": 0, "crestSway": 0 },
+          { "time": 0.38, "blink": 1, "wingLift": 0.04, "crestSway": -0.04 },
+          { "time": 0.72, "blink": 1, "wingLift": 0.04, "crestSway": 0.04 },
+          { "time": 1, "blink": 0, "wingLift": 0, "crestSway": 0 }
+        ]
+      }
+    }
+  }
+}

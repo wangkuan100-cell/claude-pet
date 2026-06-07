@@ -1,0 +1,195 @@
+{
+  "version": 2,
+  "source": "../../kitsune/legendary.png",
+  "canvas": {
+    "width": 256,
+    "height": 256
+  },
+  "layers": [
+    {
+      "id": "body-core",
+      "file": "body-core.png",
+      "z": 0.04,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 1,
+      "sway": 0.12,
+      "tilt": 0.012,
+      "phase": 0,
+      "pivot": {
+        "x": 128,
+        "y": 178
+      },
+      "motion": "body",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "bob": 0.016
+        },
+        "run": {
+          "bob": 0.048,
+          "rotate": 0.032
+        }
+      }
+    },
+    {
+      "id": "head-ears",
+      "file": "head-ears.png",
+      "z": 0.11,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 1,
+      "sway": 0.16,
+      "tilt": 0.018,
+      "phase": 2.1,
+      "pivot": {
+        "x": 128,
+        "y": 124
+      },
+      "motion": "head",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "rotate": 0.026
+        },
+        "run": {
+          "rotate": 0.05
+        }
+      }
+    },
+    {
+      "id": "tails-left",
+      "file": "tails-left.png",
+      "z": -0.055,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 0.98,
+      "sway": 0.44,
+      "tilt": 0.04,
+      "phase": 0.25,
+      "pivot": {
+        "x": 98,
+        "y": 150
+      },
+      "motion": "tail",
+      "direction": -1,
+      "clip": {
+        "idle": {
+          "rotate": 0.085
+        },
+        "run": {
+          "rotate": 0.18
+        }
+      }
+    },
+    {
+      "id": "tails-right",
+      "file": "tails-right.png",
+      "z": -0.05,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 0.98,
+      "sway": 0.48,
+      "tilt": 0.042,
+      "phase": 1.65,
+      "pivot": {
+        "x": 158,
+        "y": 150
+      },
+      "motion": "tail",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "rotate": 0.085
+        },
+        "run": {
+          "rotate": 0.18
+        }
+      }
+    },
+    {
+      "id": "leg-back",
+      "file": "leg-back.png",
+      "z": 0.08,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 1,
+      "sway": 0,
+      "tilt": 0,
+      "phase": 0,
+      "pivot": {
+        "x": 98,
+        "y": 204
+      },
+      "motion": "leg",
+      "direction": -1,
+      "clip": {
+        "idle": {
+          "rotate": 0.018
+        },
+        "run": {
+          "rotate": 0.23,
+          "bob": 0.018
+        }
+      }
+    },
+    {
+      "id": "leg-front",
+      "file": "leg-front.png",
+      "z": 0.1,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 1,
+      "sway": 0,
+      "tilt": 0,
+      "phase": 3.14,
+      "pivot": {
+        "x": 154,
+        "y": 204
+      },
+      "motion": "leg",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "rotate": 0.018
+        },
+        "run": {
+          "rotate": 0.23,
+          "bob": 0.018
+        }
+      }
+    },
+    {
+      "id": "aura-front",
+      "file": "aura-front.png",
+      "z": 0.16,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 0.74,
+      "sway": 0.34,
+      "tilt": 0,
+      "phase": 3.15,
+      "pivot": {
+        "x": 128,
+        "y": 144
+      },
+      "motion": "float",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "bob": 0.035
+        },
+        "run": {
+          "bob": 0.06
+        }
+      }
+    }
+  ]
+}

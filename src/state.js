@@ -4,7 +4,12 @@ import path from 'node:path';
 import { SCHEMA_VERSION, MOOD_INIT } from './constants.js';
 
 export function baseDir() {
-  return process.env.CLAUDE_PET_HOME || path.join(os.homedir(), '.claude-pet');
+  if (process.env.CODE_PET_HOME) return process.env.CODE_PET_HOME;
+  if (process.env.CLAUDE_PET_HOME) return process.env.CLAUDE_PET_HOME;
+  const home = os.homedir();
+  const legacy = path.join(home, '.claude-pet');
+  if (fs.existsSync(path.join(legacy, 'pet.json'))) return legacy;
+  return path.join(home, '.code-pet');
 }
 export const petPath = () => path.join(baseDir(), 'pet.json');
 export const statusPath = () => path.join(baseDir(), 'status.json');

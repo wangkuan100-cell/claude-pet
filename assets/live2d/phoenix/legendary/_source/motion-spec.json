@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "target": "phoenix/legendary",
+  "motionOrder": ["Idle", "Run", "Fly", "Tap", "Happy", "Worried"],
+  "runtimeRouting": {
+    "normal": "Idle",
+    "flow": "Fly",
+    "happy": "Happy",
+    "sleepy": "Idle",
+    "bored": "Idle",
+    "worried": "Worried",
+    "feed": "Tap",
+    "levelup": "Happy",
+    "evolve": "Fly",
+    "hop": "Tap"
+  },
+  "parameters": {
+    "ParamAngleX": "cursor focus and head/body look",
+    "ParamAngleY": "cursor focus and vertical head tilt",
+    "ParamBodyAngleZ": "body balance",
+    "ParamBreath": "idle breathing",
+    "ParamWingL": "left wing flap arc",
+    "ParamWingR": "right wing flap arc",
+    "ParamFootL": "left foot step",
+    "ParamFootR": "right foot step",
+    "ParamFlame": "fire halo scale and brightness",
+    "ParamCrest": "crest bounce or droop",
+    "ParamEyeOpen": "blink and worried squint",
+    "ParamMouthForm": "smile or worried mouth"
+  },
+  "motions": {
+    "Idle": {
+      "file": "motions/idle.motion3.json",
+      "durationSec": 3.2,
+      "loop": true,
+      "expression": "calm, attentive, small blink",
+      "keyframes": [
+        { "time": 0.0, "ParamBreath": 0.35, "ParamWingL": -0.10, "ParamWingR": 0.08, "ParamFlame": 0.50, "ParamCrest": 0.00, "ParamEyeOpen": 1.00 },
+        { "time": 0.8, "ParamBreath": 0.80, "ParamWingL": 0.06, "ParamWingR": -0.04, "ParamFlame": 0.62, "ParamCrest": 0.05, "ParamEyeOpen": 1.00 },
+        { "time": 1.6, "ParamBreath": 0.45, "ParamWingL": -0.08, "ParamWingR": 0.06, "ParamFlame": 0.52, "ParamCrest": 0.02, "ParamEyeOpen": 0.12 },
+        { "time": 1.75, "ParamBreath": 0.45, "ParamWingL": -0.08, "ParamWingR": 0.06, "ParamFlame": 0.52, "ParamCrest": 0.02, "ParamEyeOpen": 1.00 },
+        { "time": 3.2, "ParamBreath": 0.35, "ParamWingL": -0.10, "ParamWingR": 0.08, "ParamFlame": 0.50, "ParamCrest": 0.00, "ParamEyeOpen": 1.00 }
+      ]
+    },
+    "Run": {
+      "file": "motions/run.motion3.json",
+      "durationSec": 0.72,
+      "loop": true,
+      "expression": "tiny quick ground steps with body balance",
+      "keyframes": [
+        { "time": 0.0, "ParamBodyAngleZ": -3, "ParamFootL": -1.00, "ParamFootR": 1.00, "ParamWingL": -0.25, "ParamWingR": 0.18, "ParamFlame": 0.56 },
+        { "time": 0.18, "ParamBodyAngleZ": 2, "ParamFootL": 0.35, "ParamFootR": -0.35, "ParamWingL": 0.20, "ParamWingR": -0.16, "ParamFlame": 0.66 },
+        { "time": 0.36, "ParamBodyAngleZ": 3, "ParamFootL": 1.00, "ParamFootR": -1.00, "ParamWingL": 0.28, "ParamWingR": -0.22, "ParamFlame": 0.60 },
+        { "time": 0.54, "ParamBodyAngleZ": -2, "ParamFootL": -0.35, "ParamFootR": 0.35, "ParamWingL": -0.18, "ParamWingR": 0.14, "ParamFlame": 0.68 },
+        { "time": 0.72, "ParamBodyAngleZ": -3, "ParamFootL": -1.00, "ParamFootR": 1.00, "ParamWingL": -0.25, "ParamWingR": 0.18, "ParamFlame": 0.56 }
+      ]
+    },
+    "Fly": {
+      "file": "motions/fly.motion3.json",
+      "durationSec": 1.15,
+      "loop": true,
+      "expression": "real flap cycle with lift, follow-through, and flame trail",
+      "keyframes": [
+        { "time": 0.0, "ParamBodyAngleZ": 0, "ParamWingL": -1.00, "ParamWingR": 0.90, "ParamFootL": 0.15, "ParamFootR": -0.15, "ParamFlame": 0.58, "ParamCrest": 0.05 },
+        { "time": 0.22, "ParamBodyAngleZ": -4, "ParamWingL": -0.30, "ParamWingR": 0.25, "ParamFootL": 0.35, "ParamFootR": -0.35, "ParamFlame": 0.74, "ParamCrest": 0.22 },
+        { "time": 0.46, "ParamBodyAngleZ": 3, "ParamWingL": 1.00, "ParamWingR": -0.92, "ParamFootL": 0.10, "ParamFootR": -0.10, "ParamFlame": 0.88, "ParamCrest": 0.10 },
+        { "time": 0.72, "ParamBodyAngleZ": 2, "ParamWingL": 0.15, "ParamWingR": -0.10, "ParamFootL": -0.20, "ParamFootR": 0.20, "ParamFlame": 0.70, "ParamCrest": -0.04 },
+        { "time": 1.15, "ParamBodyAngleZ": 0, "ParamWingL": -1.00, "ParamWingR": 0.90, "ParamFootL": 0.15, "ParamFootR": -0.15, "ParamFlame": 0.58, "ParamCrest": 0.05 }
+      ]
+    },
+    "Tap": {
+      "file": "motions/tap.motion3.json",
+      "durationSec": 0.7,
+      "loop": false,
+      "expression": "quick pet response, tiny hop, crest bounce",
+      "keyframes": [
+        { "time": 0.0, "ParamBodyAngleZ": 0, "ParamBreath": 0.45, "ParamWingL": -0.08, "ParamWingR": 0.08, "ParamCrest": 0.00, "ParamMouthForm": 0.00 },
+        { "time": 0.12, "ParamBodyAngleZ": -6, "ParamBreath": 0.95, "ParamWingL": 0.35, "ParamWingR": -0.30, "ParamCrest": 0.55, "ParamMouthForm": 0.65 },
+        { "time": 0.32, "ParamBodyAngleZ": 4, "ParamBreath": 0.75, "ParamWingL": -0.18, "ParamWingR": 0.12, "ParamCrest": -0.16, "ParamMouthForm": 0.45 },
+        { "time": 0.7, "ParamBodyAngleZ": 0, "ParamBreath": 0.45, "ParamWingL": -0.08, "ParamWingR": 0.08, "ParamCrest": 0.00, "ParamMouthForm": 0.00 }
+      ]
+    },
+    "Happy": {
+      "file": "motions/happy.motion3.json",
+      "durationSec": 1.4,
+      "loop": false,
+      "expression": "bright success reaction with smile and small wing flourish",
+      "keyframes": [
+        { "time": 0.0, "ParamBodyAngleZ": 0, "ParamWingL": -0.15, "ParamWingR": 0.15, "ParamFlame": 0.58, "ParamCrest": 0.05, "ParamMouthForm": 0.25, "ParamEyeOpen": 1.00 },
+        { "time": 0.2, "ParamBodyAngleZ": 7, "ParamWingL": 0.75, "ParamWingR": -0.70, "ParamFlame": 0.95, "ParamCrest": 0.70, "ParamMouthForm": 1.00, "ParamEyeOpen": 1.00 },
+        { "time": 0.48, "ParamBodyAngleZ": -5, "ParamWingL": -0.55, "ParamWingR": 0.50, "ParamFlame": 0.82, "ParamCrest": 0.20, "ParamMouthForm": 0.90, "ParamEyeOpen": 0.88 },
+        { "time": 0.86, "ParamBodyAngleZ": 3, "ParamWingL": 0.30, "ParamWingR": -0.22, "ParamFlame": 0.78, "ParamCrest": 0.38, "ParamMouthForm": 0.85, "ParamEyeOpen": 1.00 },
+        { "time": 1.4, "ParamBodyAngleZ": 0, "ParamWingL": -0.15, "ParamWingR": 0.15, "ParamFlame": 0.58, "ParamCrest": 0.05, "ParamMouthForm": 0.25, "ParamEyeOpen": 1.00 }
+      ]
+    },
+    "Worried": {
+      "file": "motions/worried.motion3.json",
+      "durationSec": 2.4,
+      "loop": true,
+      "expression": "soft concerned stance, smaller flame, lowered crest",
+      "keyframes": [
+        { "time": 0.0, "ParamBodyAngleZ": -2, "ParamWingL": -0.22, "ParamWingR": 0.20, "ParamFlame": 0.34, "ParamCrest": -0.32, "ParamEyeOpen": 0.82, "ParamMouthForm": -0.55 },
+        { "time": 0.65, "ParamBodyAngleZ": 2, "ParamWingL": -0.05, "ParamWingR": 0.04, "ParamFlame": 0.42, "ParamCrest": -0.22, "ParamEyeOpen": 0.70, "ParamMouthForm": -0.65 },
+        { "time": 1.1, "ParamBodyAngleZ": -3, "ParamWingL": -0.28, "ParamWingR": 0.24, "ParamFlame": 0.30, "ParamCrest": -0.40, "ParamEyeOpen": 0.78, "ParamMouthForm": -0.55 },
+        { "time": 1.65, "ParamBodyAngleZ": 1, "ParamWingL": -0.12, "ParamWingR": 0.10, "ParamFlame": 0.38, "ParamCrest": -0.28, "ParamEyeOpen": 0.62, "ParamMouthForm": -0.72 },
+        { "time": 2.4, "ParamBodyAngleZ": -2, "ParamWingL": -0.22, "ParamWingR": 0.20, "ParamFlame": 0.34, "ParamCrest": -0.32, "ParamEyeOpen": 0.82, "ParamMouthForm": -0.55 }
+      ]
+    }
+  },
+  "exportNotes": [
+    "Export Cubism motions using the same group names as this file: Idle, Run, Fly, Tap, Happy, Worried.",
+    "Keep Idle, Run, Fly, and Worried loopable. Tap and Happy are one-shot reactions.",
+    "The widget runtime chooses motions by group-name pattern, so exact file names are less important than model3.json group names."
+  ]
+}

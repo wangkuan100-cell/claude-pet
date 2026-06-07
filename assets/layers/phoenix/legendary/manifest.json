@@ -1,0 +1,204 @@
+{
+  "version": 2,
+  "source": "../../phoenix/legendary.png",
+  "canvas": {
+    "width": 256,
+    "height": 256
+  },
+  "layers": [
+    {
+      "id": "body-core",
+      "file": "body-core.png",
+      "z": 0.03,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 1,
+      "sway": 0.14,
+      "tilt": 0.014,
+      "phase": 0,
+      "pivot": {
+        "x": 128,
+        "y": 163
+      },
+      "motion": "body",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "bob": 0.018
+        },
+        "run": {
+          "bob": 0.05,
+          "rotate": 0.035
+        },
+        "hop": {
+          "bob": 0.08
+        }
+      }
+    },
+    {
+      "id": "wing-left",
+      "file": "wing-left.png",
+      "z": -0.03,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 0.98,
+      "sway": 0.24,
+      "tilt": 0.045,
+      "phase": 0.15,
+      "pivot": {
+        "x": 91,
+        "y": 153
+      },
+      "motion": "wing",
+      "direction": -1,
+      "clip": {
+        "idle": {
+          "rotate": 0.11
+        },
+        "run": {
+          "rotate": 0.24
+        },
+        "hop": {
+          "rotate": 0.3
+        }
+      }
+    },
+    {
+      "id": "wing-right",
+      "file": "wing-right.png",
+      "z": -0.025,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 0.98,
+      "sway": 0.24,
+      "tilt": 0.045,
+      "phase": 3.3,
+      "pivot": {
+        "x": 164,
+        "y": 153
+      },
+      "motion": "wing",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "rotate": 0.11
+        },
+        "run": {
+          "rotate": 0.24
+        },
+        "hop": {
+          "rotate": 0.3
+        }
+      }
+    },
+    {
+      "id": "foot-left",
+      "file": "foot-left.png",
+      "z": 0.11,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 1,
+      "sway": 0,
+      "tilt": 0,
+      "phase": 0,
+      "pivot": {
+        "x": 99,
+        "y": 226
+      },
+      "motion": "leg",
+      "direction": -1,
+      "clip": {
+        "idle": {
+          "rotate": 0.02
+        },
+        "run": {
+          "rotate": 0.22,
+          "bob": 0.018
+        }
+      }
+    },
+    {
+      "id": "foot-right",
+      "file": "foot-right.png",
+      "z": 0.12,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 1,
+      "sway": 0,
+      "tilt": 0,
+      "phase": 3.14,
+      "pivot": {
+        "x": 151,
+        "y": 226
+      },
+      "motion": "leg",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "rotate": 0.02
+        },
+        "run": {
+          "rotate": 0.22,
+          "bob": 0.018
+        }
+      }
+    },
+    {
+      "id": "flame-halo",
+      "file": "flame-halo.png",
+      "z": -0.06,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 0.54,
+      "sway": 0.22,
+      "tilt": 0.012,
+      "phase": 0.1,
+      "pivot": {
+        "x": 128,
+        "y": 92
+      },
+      "motion": "aura",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "bob": 0.03
+        },
+        "run": {
+          "bob": 0.055
+        }
+      }
+    },
+    {
+      "id": "crest-front",
+      "file": "crest-front.png",
+      "z": 0.16,
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "opacity": 0.98,
+      "sway": 0.12,
+      "tilt": 0.014,
+      "phase": 2.75,
+      "pivot": {
+        "x": 129,
+        "y": 76
+      },
+      "motion": "head",
+      "direction": 1,
+      "clip": {
+        "idle": {
+          "rotate": 0.025
+        },
+        "run": {
+          "rotate": 0.045
+        }
+      }
+    }
+  ]
+}

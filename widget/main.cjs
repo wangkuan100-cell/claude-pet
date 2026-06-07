@@ -5,6 +5,8 @@ let win = null;
 let logic = null;       // dynamically-imported ESM modules
 let stateSource = null;
 let spriteSource = null;
+let spritePaintAssets = null;
+let live2dSource = null;
 let winPos = null;
 let engine = null;
 let wander = null;
@@ -20,6 +22,8 @@ async function loadModules() {
   logic = await import('./render-logic.js');
   stateSource = await import('./state-source.js');
   spriteSource = await import('./sprite-source.js');
+  spritePaintAssets = await import('./sprite-paint-assets.js');
+  live2dSource = await import('./live2d-source.js');
   winPos = await import('./window-pos.js');
   engine = await import('../src/engine.js');
   wander = await import('./wander.js');
@@ -35,15 +39,11 @@ function repaint() {
     data.events = logic.paintEvents(lastPanel, data.panel);
     lastPanel = data.panel;
     const assetsDir = path.join(__dirname, '..', 'assets');
-    // data URL (not file://) so the 3D renderer can upload it as a WebGL texture; <img> in the
-    // 2D fallback accepts it too. Use the spriteKey from buildPaintData — it's 'egg' pre-hatch
-    // (resolving to the generic egg.png) or 'line/form' after hatching.
-    const url = spriteSource.assetDataUrl(assetsDir, data.sprite.key);
-    if (url) data.sprite.imageSrc = url;
-    // Optional pose2 frame — when present, the renderer cross-fades pose1 ↔ pose2 to animate
-    // wings/tails/cores. Forms without a pose2 file just show the single static sprite.
-    const url2 = spriteSource.assetDataUrlPose2(assetsDir, data.sprite.key);
-    if (url2) data.sprite.imageSrcPose2 = url2;
+    // data URLs (not file://) so the 3D renderer can upload them as WebGL textures.
+    // assetDataUrls returns [pose1, pose2, pose3, ...] — however many exist on disk for this
+    // sprite key. The renderer ping-pongs through all of them at mood-driven tempo. Forms with
+    // only pose1 (egg, hatchling) just stay static.
+    spritePaintAssets.attachSpriteAssets(data.sprite, spriteSource, assetsDir, live2dSource);
     // When reminders are toggled off, hide the nag bubbles (context/git/rest) but keep the
     // supportive empathy bubble.
     if (!prefs.reminders && data.bubble && data.bubble.kind !== 'empathy') data.bubble = null;

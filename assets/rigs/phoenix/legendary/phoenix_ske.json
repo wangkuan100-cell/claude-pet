@@ -1,0 +1,214 @@
+{
+  "name": "code-pet-phoenix-legendary",
+  "version": "5.5",
+  "compatibleVersion": "5.5",
+  "frameRate": 24,
+  "armature": [
+    {
+      "name": "PhoenixLegendary",
+      "type": "Armature",
+      "aabb": { "x": 0, "y": 0, "width": 256, "height": 256 },
+      "bone": [
+        { "name": "root", "transform": { "x": 0, "y": 0 } },
+        { "name": "body", "parent": "root", "transform": { "x": 128, "y": 128 } },
+        { "name": "leftWing", "parent": "body", "transform": { "x": 102, "y": 125 } },
+        { "name": "rightWing", "parent": "body", "transform": { "x": 154, "y": 125 } },
+        { "name": "feet", "parent": "body", "transform": { "x": 128, "y": 202 } },
+        { "name": "crest", "parent": "body", "transform": { "x": 128, "y": 82 } },
+        { "name": "leftEye", "parent": "body", "transform": { "x": 105, "y": 120 } },
+        { "name": "rightEye", "parent": "body", "transform": { "x": 151, "y": 120 } }
+      ],
+      "slot": [
+        { "name": "whole-body", "parent": "body", "displayIndex": 0, "blendMode": "normal" }
+      ],
+      "skin": [
+        {
+          "name": "default",
+          "slot": [
+            {
+              "name": "whole-body",
+              "display": [
+                {
+                  "name": "phoenix_full",
+                  "path": "phoenix_full",
+                  "type": "image",
+                  "transform": { "x": 0, "y": 0, "scaleX": 1, "scaleY": 1 }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "animation": [
+        {
+          "name": "idle",
+          "duration": 43,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 21, "x": 0, "y": 0, "tweenEasing": 0 },
+                { "duration": 22, "x": 0, "y": -2.3, "tweenEasing": 0 }
+              ],
+              "scaleFrame": [
+                { "duration": 21, "x": 1, "y": 1, "tweenEasing": 0 },
+                { "duration": 22, "x": 1.006, "y": 1.012, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "walk",
+          "duration": 24,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 6, "x": 0, "y": 0.8, "tweenEasing": 0 },
+                { "duration": 6, "x": 0, "y": -2.8, "tweenEasing": 0 },
+                { "duration": 6, "x": 0, "y": 0.8, "tweenEasing": 0 },
+                { "duration": 6, "x": 0, "y": -2.8, "tweenEasing": 0 }
+              ],
+              "rotateFrame": [
+                { "duration": 6, "rotate": -0.8, "tweenEasing": 0 },
+                { "duration": 6, "rotate": 0.6, "tweenEasing": 0 },
+                { "duration": 6, "rotate": 0.8, "tweenEasing": 0 },
+                { "duration": 6, "rotate": -0.6, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "run",
+          "duration": 17,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 4, "x": 0, "y": 2.3, "tweenEasing": 0 },
+                { "duration": 4, "x": 0, "y": -6.6, "tweenEasing": 0 },
+                { "duration": 4, "x": 0, "y": 2.3, "tweenEasing": 0 },
+                { "duration": 5, "x": 0, "y": -6.6, "tweenEasing": 0 }
+              ],
+              "rotateFrame": [
+                { "duration": 4, "rotate": -2, "tweenEasing": 0 },
+                { "duration": 4, "rotate": 1, "tweenEasing": 0 },
+                { "duration": 4, "rotate": 2, "tweenEasing": 0 },
+                { "duration": 5, "rotate": -1, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hop",
+          "duration": 18,
+          "playTimes": 1,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 4, "x": 0, "y": 2.5, "tweenEasing": 0 },
+                { "duration": 5, "x": 0, "y": -18, "tweenEasing": 0 },
+                { "duration": 5, "x": 0, "y": -3, "tweenEasing": 0 },
+                { "duration": 4, "x": 0, "y": 0, "tweenEasing": 0 }
+              ],
+              "scaleFrame": [
+                { "duration": 4, "x": 1.04, "y": 0.94, "tweenEasing": 0 },
+                { "duration": 5, "x": 0.97, "y": 1.08, "tweenEasing": 0 },
+                { "duration": 5, "x": 1.02, "y": 0.98, "tweenEasing": 0 },
+                { "duration": 4, "x": 1, "y": 1, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "flap",
+          "duration": 13,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 6, "x": 0, "y": 1.9, "tweenEasing": 0 },
+                { "duration": 7, "x": 0, "y": -10.2, "tweenEasing": 0 }
+              ],
+              "scaleFrame": [
+                { "duration": 6, "x": 1.018, "y": 0.988, "tweenEasing": 0 },
+                { "duration": 7, "x": 0.99, "y": 1.03, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tap",
+          "duration": 12,
+          "playTimes": 1,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 4, "x": 0, "y": 0, "tweenEasing": 0 },
+                { "duration": 4, "x": 0, "y": -5.8, "tweenEasing": 0 },
+                { "duration": 4, "x": 0, "y": 0, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "happy",
+          "duration": 22,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 11, "x": 0, "y": 0, "tweenEasing": 0 },
+                { "duration": 11, "x": 0, "y": -7, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "worried",
+          "duration": 15,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "body",
+              "translateFrame": [
+                { "duration": 7, "x": -1.5, "y": 0, "tweenEasing": 0 },
+                { "duration": 8, "x": 1.5, "y": -0.8, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "blink",
+          "duration": 5,
+          "playTimes": 1,
+          "bone": [
+            {
+              "name": "leftEye",
+              "scaleFrame": [
+                { "duration": 2, "x": 1, "y": 1, "tweenEasing": 0 },
+                { "duration": 1, "x": 1.05, "y": 0.12, "tweenEasing": 0 },
+                { "duration": 2, "x": 1, "y": 1, "tweenEasing": 0 }
+              ]
+            },
+            {
+              "name": "rightEye",
+              "scaleFrame": [
+                { "duration": 2, "x": 1, "y": 1, "tweenEasing": 0 },
+                { "duration": 1, "x": 1.05, "y": 0.12, "tweenEasing": 0 },
+                { "duration": 2, "x": 1, "y": 1, "tweenEasing": 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

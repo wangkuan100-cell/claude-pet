@@ -1,0 +1,33 @@
+{
+  "id": "spine-celeste-remote",
+  "engine": "spine",
+  "label": "Celeste skeletal animation demo",
+  "source": {
+    "repository": "EsotericSoftware/spine-runtimes",
+    "ref": "4.3",
+    "path": "examples/celestial-circus"
+  },
+  "files": {
+    "skeletonUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/celestial-circus/export/celestial-circus-pro.json",
+    "atlasUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/celestial-circus/export/celestial-circus-pma.atlas",
+    "textureUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/celestial-circus/export/celestial-circus-pma.png",
+    "licenseUrl": "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/celestial-circus/license.txt"
+  },
+  "demoRuntime": {
+    "cdnJs": "https://unpkg.com/@esotericsoftware/spine-player@4.3.*/dist/iife/spine-player.js",
+    "cdnCss": "https://unpkg.com/@esotericsoftware/spine-player@4.3.*/dist/spine-player.css"
+  },
+  "animations": [
+    "wings-and-feet",
+    "eyeblink",
+    "swing"
+  ],
+  "validationGoal": "Verify true skeletal wing flapping and foot motion before phoenix legendary rigging.",
+  "productionRigTarget": "DragonBones/LoongBones",
+  "productionUse": false,
+  "licenseNotes": [
+    "Evaluation-only reference demo for motion validation.",
+    "Do not ship this Spine runtime or sample character as the production pet without a proper Spine runtime/license review.",
+    "Use DragonBones or LoongBones for the phoenix legendary production rig."
+  ]
+}

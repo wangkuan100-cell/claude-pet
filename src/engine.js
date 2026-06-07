@@ -88,7 +88,7 @@ export function applyEvent(pet, sessionAcc, event, now = new Date(), rng = Math.
   return { pet: next, sessionAcc: acc, unlocked };
 }
 
-export function buildStatus({ cwd, repo, snapshot, usage, costUsd, activeMins }, now = new Date()) {
+export function buildStatus({ provider = 'manual', cwd, repo, snapshot, usage, costUsd, activeMins }, now = new Date()) {
   const contextUsedPct = Math.round((100 * (usage?.lastContextTokens || 0)) / CONTEXT_WINDOW_TOKENS);
   const alerts = [];
   if (contextUsedPct > CONTEXT_ALERT_PCT) alerts.push('context');
@@ -96,6 +96,7 @@ export function buildStatus({ cwd, repo, snapshot, usage, costUsd, activeMins },
   if ((activeMins || 0) > REST_ALERT_MIN) alerts.push('rest');
   return {
     schemaVersion: 1,
+    provider,
     cwd,
     repo: repo || null,
     branch: snapshot?.branch || null,

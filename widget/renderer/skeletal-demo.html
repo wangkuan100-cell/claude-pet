@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skeletal Motion Demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/@esotericsoftware/spine-player@4.3.*/dist/spine-player.css" />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202a;
+        --muted: #667085;
+        --line: #d7dde6;
+        --paper: #f6f7f2;
+        --panel: #ffffff;
+        --accent: #b84a32;
+        --accent-2: #1f7a6d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background:
+          linear-gradient(135deg, rgba(31, 122, 109, 0.08), transparent 34%),
+          linear-gradient(315deg, rgba(184, 74, 50, 0.1), transparent 38%),
+          var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(1180px, calc(100vw - 32px));
+        min-height: min(760px, calc(100vh - 32px));
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 286px;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .stage-column {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 16px;
+        min-height: 0;
+      }
+
+      .player-shell,
+      aside {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 18px 54px rgba(45, 45, 45, 0.13);
+      }
+
+      .player-shell {
+        position: relative;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .player {
+        width: 100%;
+        height: 100%;
+        min-height: 300px;
+      }
+
+      .badge {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.88);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      aside {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.12;
+        letter-spacing: 0;
+      }
+
+      .metric {
+        display: grid;
+        gap: 6px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .label {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .value {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .status {
+        color: var(--accent-2);
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      button {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.primary {
+        grid-column: 1 / -1;
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.52;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+        word-break: break-word;
+      }
+
+      @media (max-width: 860px) {
+        body {
+          place-items: start center;
+          padding: 12px 0;
+        }
+
+        main {
+          width: min(100vw - 24px, 620px);
+          min-height: 0;
+          grid-template-columns: 1fr;
+        }
+
+        .stage-column {
+          grid-template-rows: minmax(320px, 48vh) minmax(320px, 48vh);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="stage-column">
+        <section class="player-shell" aria-label="Celeste wing skeletal player">
+          <span class="badge">Wing rig</span>
+          <div id="celeste-player" class="player"></div>
+        </section>
+        <section class="player-shell" aria-label="Spineboy run skeletal player">
+          <span class="badge">Run rig</span>
+          <div id="spineboy-player" class="player"></div>
+        </section>
+      </div>
+      <aside>
+        <h1>GitHub Skeleton Demo</h1>
+        <div class="metric">
+          <span class="label">Wing motion</span>
+          <span id="wing-motion-name" class="value">wings-and-feet</span>
+          <span id="wing-status" class="value status">loading</span>
+        </div>
+        <div class="metric">
+          <span class="label">Run motion</span>
+          <span id="run-motion-name" class="value">run</span>
+          <span id="run-status" class="value status">loading</span>
+        </div>
+        <div class="buttons">
+          <button id="wings" class="primary" disabled>Wings + feet</button>
+          <button id="swing" disabled>Swing</button>
+          <button id="run" class="primary" disabled>Run</button>
+          <button id="walk" disabled>Walk</button>
+        </div>
+        <div class="metric">
+          <span class="label">Runtime</span>
+          <span class="value">Spine Player 4.3</span>
+        </div>
+        <div class="metric">
+          <span class="label">Source</span>
+          <code>EsotericSoftware/spine-runtimes 4.3</code>
+        </div>
+      </aside>
+    </main>
+
+    <script src="https://unpkg.com/@esotericsoftware/spine-player@4.3.*/dist/iife/spine-player.js"></script>
+    <script>
+      const manifests = {
+        celeste: "/assets/skeletal-demo/spine-celeste/manifest.json",
+        spineboy: "/assets/skeletal-demo/spineboy-run/manifest.json",
+      };
+
+      const players = {};
+      const controls = {
+        wings: document.getElementById("wings"),
+        swing: document.getElementById("swing"),
+        run: document.getElementById("run"),
+        walk: document.getElementById("walk"),
+      };
+
+      function setStatus(id, text, failed = false) {
+        const node = document.getElementById(id);
+        node.textContent = text;
+        node.style.color = failed ? "var(--accent)" : "var(--accent-2)";
+      }
+
+      function setMotion(id, text) {
+        document.getElementById(id).textContent = text;
+      }
+
+      async function readManifest(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("manifest " + response.status);
+        return response.json();
+      }
+
+      function bootPlayer(config) {
+        const player = new spine.SpinePlayer(config.elementId, {
+          skeleton: config.manifest.files.skeletonUrl,
+          atlas: config.manifest.files.atlasUrl,
+          animation: config.initialAnimation,
+          animations: config.manifest.animations,
+          showControls: true,
+          premultipliedAlpha: true,
+          alpha: true,
+          backgroundColor: "#00000000",
+          viewport: config.viewport,
+          success: function (loadedPlayer) {
+            players[config.key] = loadedPlayer;
+            setStatus(config.statusId, "ready");
+            config.readyButtons.forEach((button) => {
+              controls[button].disabled = false;
+            });
+          },
+          error: function (_player, reason) {
+            setStatus(config.statusId, String(reason || "load failed"), true);
+          },
+        });
+        players[config.key] = player;
+      }
+
+      function bindControls() {
+        controls.wings.addEventListener("click", () => {
+          players.celeste.setAnimation("wings-and-feet", true);
+          setMotion("wing-motion-name", "wings-and-feet");
+        });
+        controls.swing.addEventListener("click", () => {
+          players.celeste.setAnimation("swing", true);
+          setMotion("wing-motion-name", "swing");
+        });
+        controls.run.addEventListener("click", () => {
+          players.spineboy.setAnimation("run", true);
+          setMotion("run-motion-name", "run");
+        });
+        controls.walk.addEventListener("click", () => {
+          players.spineboy.setAnimation("walk", true);
+          setMotion("run-motion-name", "walk");
+        });
+      }
+
+      async function boot() {
+        if (!window.spine || !window.spine.SpinePlayer) {
+          throw new Error("SpinePlayer runtime unavailable");
+        }
+
+        const celeste = await readManifest(manifests.celeste);
+        const spineboy = await readManifest(manifests.spineboy);
+
+        bootPlayer({
+          key: "celeste",
+          elementId: "celeste-player",
+          manifest: celeste,
+          initialAnimation: "wings-and-feet",
+          statusId: "wing-status",
+          readyButtons: ["wings", "swing"],
+          viewport: {
+            padLeft: "12%",
+            padRight: "12%",
+            padTop: "8%",
+            padBottom: "12%",
+          },
+        });
+
+        bootPlayer({
+          key: "spineboy",
+          elementId: "spineboy-player",
+          manifest: spineboy,
+          initialAnimation: "run",
+          statusId: "run-status",
+          readyButtons: ["run", "walk"],
+          viewport: {
+            padLeft: "8%",
+            padRight: "8%",
+            padTop: "6%",
+            padBottom: "4%",
+          },
+        });
+
+        bindControls();
+      }
+
+      boot().catch((error) => {
+        setStatus("wing-status", String(error.message || error), true);
+        setStatus("run-status", String(error.message || error), true);
+      });
+    </script>
+  </body>
+</html>

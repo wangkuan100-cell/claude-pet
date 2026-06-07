@@ -27,6 +27,20 @@ test('milestone awards 300 xp and hatches the egg into a random species', () => 
   assert.ok(saved.species); // hatched into some line, chosen at random
 });
 
+test('status shows the last activity provider when status exists', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'code-pet-'));
+  fs.writeFileSync(path.join(home, 'status.json'), JSON.stringify({
+    provider: 'codex',
+    cwd: home,
+    repo: null,
+    contextUsedPct: 12,
+    sessionCostUsd: 0,
+    alerts: [],
+  }));
+  const out = pet(home, ['status'], '', { CODE_PET_HOME: home }).stdout;
+  assert.match(out, /provider:\s*codex/i);
+});
+
 test('start launches via the configured electron path; stop clears the pidfile', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-pet-'));
   const start = pet(home, ['start'], '', { CLAUDE_PET_FAKE_ELECTRON: '/usr/bin/true' });

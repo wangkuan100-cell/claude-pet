@@ -1,7 +1,7 @@
 {
-  "name": "claude-pet",
+  "name": "code-pet",
   "version": "0.5.0",
-  "description": "A Claude Code plugin: a desktop pet that grows as you code — read-only state engine, Electron widget, reminders, and achievements.",
+  "description": "A Codex and Claude Code desktop pet that grows as you code — read-only state engine, Electron widget, reminders, and achievements.",
   "type": "module",
   "main": "widget/main.cjs",
   "author": {
@@ -18,6 +18,8 @@
   },
   "keywords": [
     "claude-code",
+    "codex",
+    "agentic-coding",
     "claude-code-plugin",
     "desktop-pet",
     "virtual-pet",
@@ -31,6 +33,8 @@
   "scripts": {
     "test": "node --test",
     "widget": "electron .",
+    "preview:all-pets": "node bin/preview-all-pets.mjs",
+    "codex-hook": "node bin/codex-hook.js",
     "gen-art": "node art/generate.mjs"
   },
   "devDependencies": {

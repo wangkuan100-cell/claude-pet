@@ -5,7 +5,51 @@
   let clickTimer = null;
   let use3D = false;
   let useLive2D = false;
+  let live2dModelUrl = null;
+  let live2dFailedUrl = null;
   let lastData = null;
+
+  function live2dPayload(data) {
+    const model = data && data.sprite && data.sprite.live2d;
+    if (!model || !model.url || !window.PetLive2D) return null;
+    return {
+      modelUrl: model.url,
+      motions: Array.isArray(model.motions) ? model.motions : [],
+      hasPhysics: !!model.hasPhysics,
+      level: data.panel ? data.panel.level : 1,
+      expression: data.expression || 'normal',
+    };
+  }
+
+  function deactivateLive2D() {
+    if (!useLive2D && !live2dModelUrl) return;
+    useLive2D = false;
+    live2dModelUrl = null;
+    const l = $('live2d'); if (l) l.style.display = 'none';
+    const c = $('stage3d'); if (c) c.style.display = use3D ? 'block' : 'none';
+    const st = $('sprite-stage'); if (st) st.style.display = use3D ? 'none' : 'block';
+  }
+
+  function activateLive2D(payload) {
+    if (!payload || payload.modelUrl === live2dFailedUrl) return false;
+    if (useLive2D && window.PetLive2D.ready && live2dModelUrl === payload.modelUrl) return true;
+    window.PetLive2D.init($('live2d'), {
+      modelUrl: payload.modelUrl,
+      onReady: () => {
+        useLive2D = true;
+        live2dModelUrl = payload.modelUrl;
+        const l = $('live2d'); if (l) l.style.display = 'block';
+        const c = $('stage3d'); if (c) c.style.display = 'none';
+        const st = $('sprite-stage'); if (st) st.style.display = 'none';
+        setTimeout(() => { if (lastData) paint(lastData); }, 0);
+      },
+      onFail: () => {
+        live2dFailedUrl = payload.modelUrl;
+        deactivateLive2D();
+      },
+    });
+    return !!window.PetLive2D.ready;
+  }
 
   function paint(data) {
     const pet = $('pet');
@@ -13,15 +57,26 @@
     pet.classList.remove('hidden');
     lastData = data;
 
-    if (useLive2D) {
-      window.PetLive2D.show({ level: data.panel ? data.panel.level : 1 });
+    const live2d = live2dPayload(data);
+    if (!live2d) deactivateLive2D();
+    if (live2d && activateLive2D(live2d)) {
+      window.PetLive2D.show(live2d);
       window.PetLive2D.setMood(data.expression || 'normal');
     } else if (use3D) {
       const key = (data.sprite && data.sprite.key) || 'egg';
       const form = (key !== 'egg' && key.indexOf('/') > -1) ? key.split('/')[1] : 'egg';
+      const rig = data.sprite.rig && typeof data.sprite.rig === 'object' ? data.sprite.rig : null;
+      const skeletalRig = rig && (rig.engine === 'dragonbones' || rig.engine === 'loongbones');
+      const rigLayers = rig && !skeletalRig && Array.isArray(data.sprite.layers) ? data.sprite.layers : null;
       window.Pet3D.show({
+        // Split layers are only for real keyed rigs; older layer-only payloads fall back to the stable PNG.
+        poses: Array.isArray(data.sprite.poses) ? data.sprite.poses : null,
+        layers: rigLayers,
+        layerCanvas: rigLayers ? (data.sprite.layerCanvas || null) : null,
+        rig,
+        animationMode: data.sprite.animationMode || null,
         imageSrc: data.sprite.imageSrc || null,
-        imageSrcPose2: data.sprite.imageSrcPose2 || null,
+        imageSrcPose2: data.sprite.animationMode === 'poses' ? (data.sprite.imageSrcPose2 || null) : null,
         emoji: data.sprite.base || '🥚',
         form,
       });
@@ -30,16 +85,18 @@
       const img = $('sprite-img'), img2 = $('sprite-img2'), base = $('sprite-base');
       if (data.sprite.imageSrc) {
         img.src = data.sprite.imageSrc; img.classList.remove('hidden'); base.classList.add('hidden');
-        // Optional second frame: when present, cross-fade pose1 ↔ pose2 for true wing/tail motion.
-        if (data.sprite.imageSrcPose2) {
+        if (data.sprite.animationMode === 'poses' && data.sprite.imageSrcPose2) {
           img2.src = data.sprite.imageSrcPose2; img2.classList.remove('hidden');
           img.classList.add('frame-a'); img2.classList.add('frame-b');
         } else {
+          img2.src = '';
           img2.classList.add('hidden');
           img.classList.remove('frame-a');
+          img2.classList.remove('frame-b');
         }
       } else {
         img.classList.add('hidden'); img2.classList.add('hidden'); base.classList.remove('hidden');
+        img.classList.remove('frame-a'); img2.classList.remove('frame-b');
         base.textContent = data.sprite.base;
         base.style.transform = `scale(${data.sprite.scale})`;
       }
@@ -181,12 +238,14 @@
   function walk(dir) {
     const st = $('sprite-stage');
     if (st) st.classList.toggle('walking', dir !== 0);
+    if (use3D && window.Pet3D && window.Pet3D.setMoving) window.Pet3D.setMoving(dir);
   }
   function hop() {
     const st = $('sprite-stage');
     if (!st) return;
     st.classList.remove('hopping'); void st.offsetWidth; st.classList.add('hopping');
     setTimeout(() => st.classList.remove('hopping'), 620);
+    if (use3D && window.Pet3D && window.Pet3D.playAction) window.Pet3D.playAction('hop');
   }
 
   // Capture the mouse only while the pointer is over real UI; otherwise clicks pass through.
@@ -207,12 +266,14 @@
     else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
   } else { const c = $('stage3d'); if (c) c.style.display = 'none'; }
 
-  // Live2D is opt-in (set window.__LIVE2D__ = true before this script). The chibi 2D sprite is
-  // the default visual; Live2D was an earlier exploration kept around as a fallback option.
-  if (window.PetLive2D && window.__LIVE2D__) {
+  // Live2D can still be forced for manual experiments, but production mode initializes lazily
+  // from sprite.live2d only when a local model exists.
+  if (window.PetLive2D && window.__LIVE2D__ && window.__LIVE2D_MODEL__) {
     window.PetLive2D.init($('live2d'), {
+      modelUrl: window.__LIVE2D_MODEL__,
       onReady: () => {
         useLive2D = true;
+        live2dModelUrl = window.__LIVE2D_MODEL__;
         const l = $('live2d'); if (l) l.style.display = 'block';
         const c = $('stage3d'); if (c) c.style.display = 'none';
         const st = $('sprite-stage'); if (st) st.style.display = 'none';

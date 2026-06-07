@@ -11,7 +11,7 @@ function printStatus() {
   if (pet.species === null) console.log('Still an egg — keep coding to hatch it (its species is random).');
   console.log(`achievements: ${pet.achievements.map((a) => a.id).join(', ') || 'none'}`);
   if (status) {
-    console.log(`project: ${status.repo || status.cwd} | context ${status.contextUsedPct}% | $${status.sessionCostUsd}`);
+    console.log(`project: ${status.repo || status.cwd} | provider: ${status.provider || 'unknown'} | context ${status.contextUsedPct}% | $${status.sessionCostUsd}`);
     if (status.alerts.length) console.log(`alerts: ${status.alerts.join(', ')}`);
   }
 }

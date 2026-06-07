@@ -1,13 +1,13 @@
-# claude-pet
+# code-pet
 
-> A desktop companion that grows as you code with Claude Code.
+> A desktop companion that grows as you code with Codex or Claude Code.
 
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)
-![tests](https://img.shields.io/badge/tests-82%20passing-success)
-![plugin](https://img.shields.io/badge/Claude%20Code-plugin-8A63D2)
+![tests](https://img.shields.io/badge/tests-102%20passing-success)
+![plugin](https://img.shields.io/badge/Codex%20%2B%20Claude%20Code-compatible-8A63D2)
 
-**claude-pet** is a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin. A small, always-on-top pet floats on your desktop and **levels up from your real coding activity** — every commit, passing test, and shipped feature grows it from a humble egg into a legendary creature. It also keeps an eye on your session and gently nudges you when your context window is filling up, when uncommitted work is piling up, or when it's time for a break.
+**code-pet** is a local desktop pet for Codex and Claude Code. A small, always-on-top pet floats on your desktop and **levels up from your real coding activity** — every commit, passing test, and shipped feature grows it from a humble egg into a legendary creature. It also keeps an eye on your session and gently nudges you when your context window is filling up, when uncommitted work is piling up, or when it's time for a break.
 
 It is built around one hard rule: **the pet never touches your project.** The hooks only *observe* activity and write to a private state directory, and the only git commands they ever run are read-only.
 
@@ -28,22 +28,27 @@ It is built around one hard rule: **the pet never touches your project.** The ho
 - **Moods you can read at a glance.** The pet's body language reflects how things are going: peppy when you're in flow, drowsy when idle, and an anxious sway (plus an encouraging word) when tests keep failing.
 - **Gentle reminders.** Speech bubbles for a near-full context window, uncommitted changes piling up, or a long stretch without a break.
 - **Lives on your desktop.** A frameless, transparent, always-on-top window. Drag it anywhere (it remembers), click for a stats panel, double-click to feed it a treat — and it wanders along the bottom edge on its own. Clicks pass through everywhere except the pet itself.
-- **Read-only by design, and tested.** Pure-Node engine with zero runtime dependencies, 82 tests, and a dedicated suite that enforces the no-side-effects invariant.
+- **2.5D-ready art.** The three.js renderer can stage a sprite as layered transparent planes when `assets/layers/<line>/<form>/manifest.json` exists, with automatic fallback to the original pose PNGs.
+- **Read-only by design, and tested.** Pure-Node engine with zero runtime dependencies, 102 tests, and a dedicated suite that enforces the no-side-effects invariant.
 
 ## How it works
 
-A decoupled, two-stage architecture: hooks observe and persist; the widget reads and renders. The two halves communicate only through files under `~/.claude-pet/`, so the engine is fully testable without a GUI and can never affect your repository.
+A decoupled, two-stage architecture: platform adapters observe and persist; the widget reads and renders. The two halves communicate only through files under the resolved pet home (`CODE_PET_HOME`, `CLAUDE_PET_HOME`, existing legacy `~/.claude-pet`, or default `~/.code-pet`), so the engine is fully testable without a GUI and can never affect your repository.
 
 ```
-Claude Code session
-   │   SessionStart · PostToolUse(Edit|Write|MultiEdit|Bash) · Stop
-   ▼
- bin/hook.js ── reads ──▶ git status/log (read-only) · transcript · session cost
+Claude Code hooks             Codex event JSON
+   │                                  │
+   ▼                                  ▼
+ bin/hook.js                 bin/codex-hook.js
+   │                                  │
+   └──────────────┬───────────────────┘
+                  ▼
+ src/activity.js ── reads ──▶ git status/log (read-only) · transcript · session cost
    │
    │ writes (only here)
    ▼
- ~/.claude-pet/pet.json     persistent pet: level, xp, mood, achievements
- ~/.claude-pet/status.json  latest project snapshot: context %, cost, alerts
+ pet.json     persistent pet: level, xp, mood, achievements
+ status.json  latest project snapshot: provider, context %, cost, alerts
    │
    │ file watch
    ▼
@@ -53,7 +58,7 @@ Claude Code session
 ## Requirements
 
 - Node.js ≥ 18
-- Claude Code (for the hooks, commands, and skill)
+- Codex or Claude Code (for automatic activity events)
 - Electron — installed as a dev dependency by `npm install`; only needed to display the widget
 - macOS, Windows, or Linux (the transparent, always-on-top window behaves best on macOS)
 
@@ -89,6 +94,17 @@ Everyone starts as an egg. **Which creature it hatches into is random — you do
 
 Outside Claude Code the same commands work via `node bin/pet.js <command>`.
 
+### Feed it from Codex
+
+Codex can send local JSON events to the universal adapter:
+
+```
+echo '{"provider":"codex","event":"tool_result","sessionId":"codex-session","cwd":"'$PWD'","tool":{"name":"Write","input":{"content":"a\nb\n"}},"result":{"type":"create"}}' \
+  | node bin/codex-hook.js
+```
+
+The Codex adapter accepts both the nested `tool/result` shape above and the Claude-shaped `hook_event_name` / `tool_name` / `tool_input` shape.
+
 ### Show the pet
 
 ```
@@ -110,11 +126,11 @@ Set `CLAUDE_PET_AUTOLAUNCH=1` to open the widget automatically at session start.
 
 ### Appearance (Live2D / 3D / 2D)
 
-The widget tries three renderers in order and uses the first that works:
+The widget chooses the best renderer available for the current pet:
 
-1. **Live2D (default)** — a polished, expressive Live2D character that blinks, breathes, and follows your cursor. Its runtime (Cubism Core), PIXI, the `pixi-live2d-display` plugin, and a free sample model are loaded from their official CDNs on first run — so this mode needs internet and shows a **pre-made character** (not the creature lines). Cubism Core is proprietary and intentionally **not bundled**; set `window.__LIVE2D_MODEL__` to point at a different `*.model3.json` if you have one.
-2. **3D** — a three.js scene that stages the creature sprite with depth, a soft shadow, and motion (used if Live2D can't load).
-3. **2D** — the plain chibi sprite — the default. Forms with articulated parts (wings, tails, glowing cores) ship a second pose PNG and cross-fade between them at runtime, so wings actually flap and tails actually sway.
+1. **Live2D (local model when present)** — if `assets/live2d/<line>/<form>/model3.json` is complete, the renderer lazily loads that Cubism 3/4 model and routes mood, cursor focus, feed, hop, level-up, and evolve reactions into Live2D. Cubism Core is proprietary and is not bundled; `petlive2d.js` can load runtime scripts from its defaults or from `window.__LIVE2D_LIBS__`. See `assets/live2d/README.md` for the folder contract.
+2. **3D / soft sprite** — the default fallback stages the stable PNG in three.js with soft-body motion, depth, and shadow. The old generated pose variants are not looped by default because they are not consistent action strips.
+3. **2D** — the plain chibi sprite is used if WebGL or the richer renderers are unavailable.
 
 ## The growth model
 
@@ -178,14 +194,15 @@ phoenix 凤凰 🔥 · dragon 龙王 🐉 · kitsune 九尾狐 ✨ · cerberus �
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `CLAUDE_PET_HOME` | `~/.claude-pet` | State directory (handy for fixtures/demos) |
+| `CODE_PET_HOME` | auto | Preferred universal state directory override |
+| `CLAUDE_PET_HOME` | auto | Legacy state directory override, still supported |
 | `CLAUDE_PET_WANDER` | on | Initial default for wandering (toggle it live from the right-click menu); set to `0` to start with it off |
 | `CLAUDE_PET_AUTOLAUNCH` | off | Set to `1` to open the widget at session start |
 | `CLAUDE_PET_CONTEXT_WINDOW` | `200000` | Token budget used to estimate context % |
 
 ## Art
 
-The 36 sprites (6 lines × 6 forms) are generated with the OpenAI Images API and committed to the repo, so you don't need an API key to use the pet. To regenerate them:
+The 36 base sprites (6 lines × 6 forms), plus extra pose frames for animation, are generated with the OpenAI Images API and committed to the repo, so you don't need an API key to use the pet. To regenerate them:
 
 ```
 OPENAI_API_KEY=sk-... npm run gen-art            # all lines
@@ -194,10 +211,22 @@ OPENAI_API_KEY=sk-... npm run gen-art phoenix    # a single line
 
 Generation uses `gpt-image-1`, which supports the transparent backgrounds the floating window needs (override with `OPENAI_IMAGE_MODEL`). Until a PNG exists, the pet falls back to an emoji.
 
+### 2.5D layered sprites
+
+Layered assets are optional and live under `assets/layers/<line>/<form>/`. Each folder has a `manifest.json` plus transparent PNG layers on the same 256×256 canvas as the source sprite. The current showcase set covers `dragon/legendary`, `phoenix/legendary`, and `kitsune/legendary` with consistent z-depth, sway, tilt, and phase values. Each set starts with a full base layer, then adds light animated accent layers so the pet never shows cut-out holes while moving.
+
+To rebuild those prototypes, run:
+
+```
+python3 art/build-2p5d-layers.py
+```
+
+The script requires Pillow. If a layer manifest is missing or incomplete, the widget keeps using the original pose PNG animation.
+
 ## Development
 
 ```
-node --test       # run all 82 tests (node:test, zero config)
+node --test       # run all 102 tests (node:test, zero config)
 npm run widget     # launch the Electron widget
 ```
 

@@ -1,0 +1,9 @@
+{
+  "name": "code-pet-phoenix-legendary-texture",
+  "imagePath": "phoenix_tex.png",
+  "width": 256,
+  "height": 256,
+  "SubTexture": [
+    { "name": "phoenix_full", "x": 0, "y": 0, "width": 256, "height": 256 }
+  ]
+}

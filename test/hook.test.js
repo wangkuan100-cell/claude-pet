@@ -9,9 +9,17 @@ function runHook(home, payload) {
   const r = spawnSync('node', ['bin/hook.js'], {
     input: JSON.stringify(payload),
     encoding: 'utf8',
-    env: { ...process.env, CLAUDE_PET_HOME: home },
+    env: { ...process.env, CODE_PET_HOME: home },
   });
   return r;
+}
+
+function runCodexHook(home, payload) {
+  return spawnSync('node', ['bin/codex-hook.js'], {
+    input: JSON.stringify(payload),
+    encoding: 'utf8',
+    env: { ...process.env, CODE_PET_HOME: home },
+  });
 }
 
 test('PostToolUse Write event adds line XP to pet.json and exits 0', () => {
@@ -86,6 +94,8 @@ test('SessionStart bumps session count and exits 0', () => {
   assert.equal(r.status, 0);
   const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
   assert.equal(pet.lifetime.sessions, 1);
+  const status = JSON.parse(fs.readFileSync(path.join(home, 'status.json'), 'utf8'));
+  assert.equal(status.provider, 'claude');
 });
 
 test('malformed stdin still exits 0 (never blocks Claude)', () => {
@@ -93,7 +103,43 @@ test('malformed stdin still exits 0 (never blocks Claude)', () => {
   const r = spawnSync('node', ['bin/hook.js'], {
     input: 'not json',
     encoding: 'utf8',
-    env: { ...process.env, CLAUDE_PET_HOME: home },
+    env: { ...process.env, CODE_PET_HOME: home },
   });
   assert.equal(r.status, 0);
+});
+
+test('Codex nested tool event adds line XP and writes provider status', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'code-pet-'));
+  const r = runCodexHook(home, {
+    provider: 'codex',
+    event: 'tool_result',
+    sessionId: 'codex-session',
+    cwd: home,
+    tool: { name: 'Write', input: { file_path: path.join(home, 'new.js'), content: 'a\nb\n' } },
+    result: { type: 'create' },
+  });
+  assert.equal(r.status, 0, r.stderr);
+  const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(pet.lifetime.linesAdded, 2);
+  assert.equal(pet.xp, 17); // 2 line XP + 15 newFile bonus
+  const status = JSON.parse(fs.readFileSync(path.join(home, 'status.json'), 'utf8'));
+  assert.equal(status.provider, 'codex');
+});
+
+test('Codex Claude-shaped event is accepted for simple adapter wiring', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'code-pet-'));
+  const r = runCodexHook(home, {
+    provider: 'codex',
+    hook_event_name: 'PostToolUse',
+    session_id: 'codex-session',
+    cwd: home,
+    tool_name: 'Edit',
+    tool_input: { new_string: 'x\ny\nz\n' },
+    tool_response: {},
+  });
+  assert.equal(r.status, 0, r.stderr);
+  const pet = JSON.parse(fs.readFileSync(path.join(home, 'pet.json'), 'utf8'));
+  assert.equal(pet.lifetime.linesAdded, 3);
+  const status = JSON.parse(fs.readFileSync(path.join(home, 'status.json'), 'utf8'));
+  assert.equal(status.provider, 'codex');
 });
