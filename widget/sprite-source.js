@@ -19,14 +19,26 @@ export function assetUrlFor(assetsDir, spriteKey) {
 }
 
 // A base64 data URL for the sprite PNG. The 3D renderer needs this rather than a file:// URL,
-// because WebGL refuses to upload file:// images as textures (origin-tainted). Cached by path.
+// because WebGL refuses to upload file:// images as textures (origin-tainted).
 const _dataUrlCache = new Map();
+function cacheStamp(file) {
+  try {
+    const stat = fs.statSync(file);
+    return `${stat.size}:${stat.mtimeMs}`;
+  } catch {
+    return null;
+  }
+}
+
 function dataUrlFor(file) {
   if (!file) return null;
-  if (_dataUrlCache.has(file)) return _dataUrlCache.get(file);
+  const stamp = cacheStamp(file);
+  if (!stamp) return null;
+  const cached = _dataUrlCache.get(file);
+  if (cached?.stamp === stamp) return cached.value;
   let out = null;
   try { out = 'data:image/png;base64,' + fs.readFileSync(file).toString('base64'); } catch { out = null; }
-  _dataUrlCache.set(file, out);
+  _dataUrlCache.set(file, { stamp, value: out });
   return out;
 }
 

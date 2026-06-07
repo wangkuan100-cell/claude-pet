@@ -20,14 +20,17 @@ function readJsonIfPresent(filePath) {
 
 function dataUrlFor(filePath) {
   if (!filePath || !fs.existsSync(filePath)) return null;
-  if (_dataUrlCache.has(filePath)) return _dataUrlCache.get(filePath);
+  const stat = fs.statSync(filePath);
+  const stamp = `${stat.size}:${stat.mtimeMs}`;
+  const cached = _dataUrlCache.get(filePath);
+  if (cached?.stamp === stamp) return cached.value;
   let out = null;
   try {
     out = 'data:image/png;base64,' + fs.readFileSync(filePath).toString('base64');
   } catch {
     out = null;
   }
-  _dataUrlCache.set(filePath, out);
+  _dataUrlCache.set(filePath, { stamp, value: out });
   return out;
 }
 

@@ -9,6 +9,10 @@ import { rigFor } from '../widget/rig-source.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const assetsDir = path.join(__dirname, '..', 'assets');
 
+function decodeDataUrl(url) {
+  return Buffer.from(url.split(',')[1], 'base64').toString();
+}
+
 test('rigFor loads the phoenix legendary DragonBones package', () => {
   const rig = rigFor(assetsDir, 'phoenix/legendary');
 
@@ -39,6 +43,32 @@ test('rigFor loads explicit DragonBones and LoongBones rig manifests', () => {
 
   assert.equal(rigFor(dir, 'dragon/legendary').engine, 'dragonbones');
   assert.equal(rigFor(dir, 'kitsune/legendary').engine, 'loongbones');
+});
+
+test('rigFor reloads texture data when a rig texture changes on disk', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'code-pet-rig-'));
+  const rigDir = path.join(dir, 'rigs', 'dragon', 'legendary');
+  fs.mkdirSync(rigDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(rigDir, 'rig.json'),
+    JSON.stringify({
+      id: 'dragon/legendary',
+      engine: 'dragonbones',
+      skeleton: 'dragon_ske.json',
+      atlas: 'dragon_tex.json',
+      texture: 'dragon_tex.png',
+    }),
+  );
+  fs.writeFileSync(path.join(rigDir, 'dragon_ske.json'), JSON.stringify({ name: 'ske' }));
+  fs.writeFileSync(path.join(rigDir, 'dragon_tex.json'), JSON.stringify({ imagePath: 'dragon_tex.png' }));
+  const texturePath = path.join(rigDir, 'dragon_tex.png');
+  fs.writeFileSync(texturePath, Buffer.from('OLD-TEXTURE'));
+  assert.equal(decodeDataUrl(rigFor(dir, 'dragon/legendary').textureSrc), 'OLD-TEXTURE');
+
+  fs.writeFileSync(texturePath, Buffer.from('NEW-TEXTURE'));
+  fs.utimesSync(texturePath, new Date(), new Date(Date.now() + 2000));
+
+  assert.equal(decodeDataUrl(rigFor(dir, 'dragon/legendary').textureSrc), 'NEW-TEXTURE');
 });
 
 test('rigFor applies the shared subtle-eye DragonBones rig to other legendary pets', () => {

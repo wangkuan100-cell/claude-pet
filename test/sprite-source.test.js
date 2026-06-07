@@ -5,6 +5,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { assetUrlFor, assetDataUrl, assetDataUrlPose2, assetDataUrls, assetLayerSet } from '../widget/sprite-source.js';
 
+function decodeDataUrl(url) {
+  return Buffer.from(url.split(',')[1], 'base64').toString();
+}
+
 test('assetUrlFor returns a file URL for an existing <line>/<form>.png, else null', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'assets-'));
   fs.mkdirSync(path.join(dir, 'phoenix'), { recursive: true });
@@ -20,8 +24,21 @@ test('assetDataUrl returns a base64 PNG data URL for an existing sprite, else nu
   fs.writeFileSync(path.join(dir, 'dragon', 'adult.png'), Buffer.from('PNGDATA'));
   const url = assetDataUrl(dir, 'dragon/adult');
   assert.match(url, /^data:image\/png;base64,/);
-  assert.equal(Buffer.from(url.split(',')[1], 'base64').toString(), 'PNGDATA');
+  assert.equal(decodeDataUrl(url), 'PNGDATA');
   assert.equal(assetDataUrl(dir, 'dragon/legendary'), null);
+});
+
+test('assetDataUrl reloads a sprite when the underlying PNG changes', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'assets-'));
+  const spritePath = path.join(dir, 'unicorn', 'legendary.png');
+  fs.mkdirSync(path.dirname(spritePath), { recursive: true });
+  fs.writeFileSync(spritePath, Buffer.from('OLDSTYLE'));
+  assert.equal(decodeDataUrl(assetDataUrl(dir, 'unicorn/legendary')), 'OLDSTYLE');
+
+  fs.writeFileSync(spritePath, Buffer.from('NEW-PAINTERLY-STYLE'));
+  fs.utimesSync(spritePath, new Date(), new Date(Date.now() + 2000));
+
+  assert.equal(decodeDataUrl(assetDataUrl(dir, 'unicorn/legendary')), 'NEW-PAINTERLY-STYLE');
 });
 
 test("assetDataUrl maps the 'egg' key to the GENERIC assets/egg.png (same for everyone)", () => {
@@ -29,7 +46,7 @@ test("assetDataUrl maps the 'egg' key to the GENERIC assets/egg.png (same for ev
   fs.writeFileSync(path.join(dir, 'egg.png'), Buffer.from('GENERIC-EGG'));
   const url = assetDataUrl(dir, 'egg');
   assert.match(url, /^data:image\/png;base64,/);
-  assert.equal(Buffer.from(url.split(',')[1], 'base64').toString(), 'GENERIC-EGG');
+  assert.equal(decodeDataUrl(url), 'GENERIC-EGG');
 });
 
 test('assetDataUrlPose2 returns the optional pose2 PNG when present, else null', () => {
@@ -42,7 +59,7 @@ test('assetDataUrlPose2 returns the optional pose2 PNG when present, else null',
   fs.writeFileSync(path.join(dir, 'phoenix', 'legendary_pose2.png'), Buffer.from('POSE2'));
   const url = assetDataUrlPose2(dir, 'phoenix/legendary');
   assert.match(url, /^data:image\/png;base64,/);
-  assert.equal(Buffer.from(url.split(',')[1], 'base64').toString(), 'POSE2');
+  assert.equal(decodeDataUrl(url), 'POSE2');
   // 'egg' (generic) never has a pose2
   assert.equal(assetDataUrlPose2(dir, 'egg'), null);
 });
@@ -58,7 +75,7 @@ test('assetDataUrls returns [pose1, pose2, ...] in order, stopping at the first 
   fs.writeFileSync(path.join(dir, 'phoenix', 'legendary.png'), Buffer.from('POSE1'));
   let urls = assetDataUrls(dir, 'phoenix/legendary');
   assert.equal(urls.length, 1);
-  assert.equal(Buffer.from(urls[0].split(',')[1], 'base64').toString(), 'POSE1');
+  assert.equal(decodeDataUrl(urls[0]), 'POSE1');
 
   // Add pose2 + pose3 + pose4 → length 4 in order
   fs.writeFileSync(path.join(dir, 'phoenix', 'legendary_pose2.png'), Buffer.from('POSE2'));
@@ -66,9 +83,9 @@ test('assetDataUrls returns [pose1, pose2, ...] in order, stopping at the first 
   fs.writeFileSync(path.join(dir, 'phoenix', 'legendary_pose4.png'), Buffer.from('POSE4'));
   urls = assetDataUrls(dir, 'phoenix/legendary');
   assert.equal(urls.length, 4);
-  assert.equal(Buffer.from(urls[1].split(',')[1], 'base64').toString(), 'POSE2');
-  assert.equal(Buffer.from(urls[2].split(',')[1], 'base64').toString(), 'POSE3');
-  assert.equal(Buffer.from(urls[3].split(',')[1], 'base64').toString(), 'POSE4');
+  assert.equal(decodeDataUrl(urls[1]), 'POSE2');
+  assert.equal(decodeDataUrl(urls[2]), 'POSE3');
+  assert.equal(decodeDataUrl(urls[3]), 'POSE4');
 
   // Gap-stop: skip pose5 but write pose6 → returns only [pose1..pose4], pose6 is ignored
   fs.writeFileSync(path.join(dir, 'phoenix', 'legendary_pose6.png'), Buffer.from('POSE6'));
@@ -79,7 +96,7 @@ test('assetDataUrls returns [pose1, pose2, ...] in order, stopping at the first 
   fs.writeFileSync(path.join(dir, 'egg.png'), Buffer.from('EGG'));
   urls = assetDataUrls(dir, 'egg');
   assert.equal(urls.length, 1);
-  assert.equal(Buffer.from(urls[0].split(',')[1], 'base64').toString(), 'EGG');
+  assert.equal(decodeDataUrl(urls[0]), 'EGG');
 });
 
 test('assetLayerSet loads a 2.5D rig manifest with data URLs, pivots, and motion metadata', () => {
